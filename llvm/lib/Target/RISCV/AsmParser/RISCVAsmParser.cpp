@@ -34,6 +34,7 @@
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/MCValue.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/Alignment.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/Compiler.h"
@@ -3603,7 +3604,10 @@ void RISCVAsmParser::emitToStreamer(MCStreamer &S, const MCInst &Inst) {
     Res = RISCVRVC::compress(CInst, Inst, STI);
   if (Res)
     ++RISCVNumInstrsCompressed;
-  S.emitInstruction((Res ? CInst : Inst), STI);
+  const MCInst &Emitted = Res ? CInst : Inst;
+  if (RISCVII::requires64BitAlignment(MII.get(Emitted.getOpcode()).TSFlags))
+    S.emitCodeAlignment(Align(8), STI);
+  S.emitInstruction(Emitted, STI);
 }
 
 void RISCVAsmParser::emitLoadImm(MCRegister DestReg, int64_t Value,

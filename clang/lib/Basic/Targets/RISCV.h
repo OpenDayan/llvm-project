@@ -115,6 +115,13 @@ public:
 
   bool hasBFloat16Type() const override { return true; }
 
+  // Default (DRAM / generic) may receive a URAM pointer. A DRAM pointer does
+  // not convert implicitly to URAM; an integer address does.
+  bool isAddressSpaceSupersetOf(LangAS A, LangAS B) const override {
+    return A == B ||
+           (A == LangAS::Default && isNPUURAMAddressSpace(B));
+  }
+
   CallingConvCheckResult checkCallingConvention(CallingConv CC) const override;
 
   bool useFP16ConversionIntrinsics() const override {

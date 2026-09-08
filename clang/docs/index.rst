@@ -111,6 +111,7 @@ Using Clang Tools
    ClangOffloadBundler
    ClangRepl
    ClangSYCLLinker
+   DayanCompiler
 
 Design Documents
 ================

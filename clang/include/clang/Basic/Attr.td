@@ -3340,6 +3340,28 @@ def Section : InheritableAttr {
   let Documentation = [SectionDocs];
 }
 
+// Qualifies a type with the NPU URAM address space, in the spirit of OpenCL's
+// __local or Cambricon BANG's __nram__. Like address_space, this is a pure
+// type attribute: no Subjects list, so it can appear in typedefs, pointer
+// types, and function return types (e.g. `__uram__ void *f(void)`).
+def NPUURAM : TypeAttr {
+  let Spellings = [GNU<"npu_uram">];
+  let Documentation = [Undocumented];
+}
+
+// Internal: maps each parameter of a hardware API onto the address space the
+// call-site argument must have. Kernel authors never write this; it lives on
+// rvt_intrinsics.h wrappers so those wrappers can take ordinary T* / void*
+// while still diagnosing a Cambricon-style mismatch.
+def NPUPtrAS : InheritableAttr {
+  let Spellings = [GNU<"npu_ptr_as">];
+  let Subjects = SubjectList<[Function], ErrorDiag>;
+  let Args = [VariadicEnumArgument<"Spaces", "Space", /*is_string=*/true,
+                                   ["any", "uram", "dram", "integer"],
+                                   ["Any", "URAM", "DRAM", "Integer"]>];
+  let Documentation = [Undocumented];
+}
+
 // This is used for `__declspec(code_seg("segname"))`, but not for
 // `#pragma code_seg("segname")`.
 def CodeSeg : InheritableAttr {

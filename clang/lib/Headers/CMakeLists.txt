@@ -132,6 +132,7 @@ set(ppc_htm_files
 
 set(riscv_files
   # Standard headers
+  rvt_intrinsics.h
   riscv_bitmanip.h
   riscv_crypto.h
   riscv_ntlh.h

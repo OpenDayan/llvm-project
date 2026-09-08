@@ -25,6 +25,8 @@
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Endian.h"
 
+#include <bitset>
+
 using namespace llvm;
 using namespace llvm::MCD;
 
@@ -46,6 +48,9 @@ public:
                               raw_ostream &CStream) const override;
 
 private:
+  DecodeStatus getInstruction64(MCInst &Instr, uint64_t &Size,
+                                ArrayRef<uint8_t> Bytes, uint64_t Address,
+                                raw_ostream &CStream) const;
   DecodeStatus getInstruction48(MCInst &Instr, uint64_t &Size,
                                 ArrayRef<uint8_t> Bytes, uint64_t Address,
                                 raw_ostream &CStream) const;
@@ -561,8 +566,10 @@ namespace {
 // Define bitwidths for various types used to instantiate the decoder.
 template <> constexpr uint32_t InsnBitWidth<uint16_t> = 16;
 template <> constexpr uint32_t InsnBitWidth<uint32_t> = 32;
-// Use uint64_t to represent 48 bit instructions.
+// Use uint64_t to represent 48 bit instructions and a distinct type for
+// 64-bit instructions so the generated decoders can specialize by width.
 template <> constexpr uint32_t InsnBitWidth<uint64_t> = 48;
+template <> constexpr uint32_t InsnBitWidth<std::bitset<64>> = 64;
 } // namespace
 
 DecodeStatus RISCVDisassembler::getInstruction32(MCInst &MI, uint64_t &Size,
@@ -644,6 +651,20 @@ static constexpr DecoderListEntry DecoderList48[]{
     {DecoderTableXqci48, XqciFeatureGroup, "Qualcomm uC 48bit"},
 };
 
+DecodeStatus RISCVDisassembler::getInstruction64(MCInst &MI, uint64_t &Size,
+                                                 ArrayRef<uint8_t> Bytes,
+                                                 uint64_t Address,
+                                                 raw_ostream &CS) const {
+  if (Bytes.size() < 8) {
+    Size = 0;
+    return MCDisassembler::Fail;
+  }
+  Size = 8;
+
+  std::bitset<64> Insn(support::endian::read64le(Bytes.data()));
+  return decodeInstruction(DecoderTable64, MI, Insn, Address, this, STI);
+}
+
 DecodeStatus RISCVDisassembler::getInstruction48(MCInst &MI, uint64_t &Size,
                                                  ArrayRef<uint8_t> Bytes,
                                                  uint64_t Address,
@@ -700,10 +721,8 @@ DecodeStatus RISCVDisassembler::getInstruction(MCInst &MI, uint64_t &Size,
     return getInstruction48(MI, Size, Bytes, Address, CS);
 
   // 64-bit instructions are encoded as 0x0111111.
-  if ((Bytes[0] & 0b111'1111) == 0b011'1111) {
-    Size = Bytes.size() >= 8 ? 8 : 0;
-    return MCDisassembler::Fail;
-  }
+  if ((Bytes[0] & 0b111'1111) == 0b011'1111)
+    return getInstruction64(MI, Size, Bytes, Address, CS);
 
   // Remaining cases need to check a second byte.
   if (Bytes.size() < 2) {

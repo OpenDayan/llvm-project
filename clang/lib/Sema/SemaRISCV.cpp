@@ -14,6 +14,9 @@
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/Attr.h"
 #include "clang/AST/Decl.h"
+#include "clang/AST/DeclTemplate.h"
+#include "clang/AST/Expr.h"
+#include "clang/AST/ExprCXX.h"
 #include "clang/Basic/Builtins.h"
 #include "clang/Basic/TargetBuiltins.h"
 #include "clang/Basic/TargetInfo.h"
@@ -26,6 +29,7 @@
 #include "clang/Sema/Sema.h"
 #include "clang/Support/RISCVVIntrinsicUtils.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/StringExtras.h"
 #include "llvm/TargetParser/RISCVISAInfo.h"
 #include "llvm/TargetParser/RISCVTargetParser.h"
 #include <optional>
@@ -593,6 +597,22 @@ bool SemaRISCV::CheckBuiltinFunctionCall(const TargetInfo &TI,
   switch (BuiltinID) {
   default:
     break;
+  case RISCV::BI__builtin_riscv_is_uram: {
+    Expr *Arg = TheCall->getArg(0);
+    if (Arg->isTypeDependent() || Arg->isValueDependent())
+      return false;
+
+    llvm::APSInt Result;
+    Expr::EvalResult EvalResult;
+    if (!Arg->EvaluateAsInt(EvalResult, Context))
+      return false;
+
+    Result = EvalResult.Val.getInt();
+    if (Result.isNegative() || Result.uge(NPUURAMWindowByteSize))
+      return SemaRef.BuiltinConstantArgRange(TheCall, 0, 0,
+                                             NPUURAMWindowByteSize - 1);
+    break;
+  }
   case RISCVVector::BI__builtin_rvv_vmulhsu_vv:
   case RISCVVector::BI__builtin_rvv_vmulhsu_vx:
   case RISCVVector::BI__builtin_rvv_vmulhsu_vv_tu:
@@ -1878,6 +1898,176 @@ bool SemaRISCV::checkTargetClonesAttr(
     return Diag(AttrLoc, diag::err_target_clone_must_have_default);
 
   return false;
+}
+
+namespace {
+
+bool isNPUURAMPointerType(QualType Ty) {
+  const auto *PT = Ty->getAs<PointerType>();
+  return PT && isNPUURAMAddressSpace(PT->getPointeeType().getAddressSpace());
+}
+
+const Expr *stripPointerValueExpression(const Expr *E) {
+  E = E->IgnoreParenImpCasts();
+  for (;;) {
+    if (const auto *ICE = dyn_cast<ImplicitCastExpr>(E)) {
+      switch (ICE->getCastKind()) {
+      case CK_BitCast:
+      case CK_IntegralToPointer:
+      case CK_NoOp:
+      case CK_LValueToRValue:
+        E = ICE->getSubExpr()->IgnoreParenImpCasts();
+        continue;
+      default:
+        break;
+      }
+    }
+    if (const auto *CSE = dyn_cast<CStyleCastExpr>(E)) {
+      E = CSE->getSubExpr()->IgnoreParenImpCasts();
+      continue;
+    }
+    if (const auto *CFCE = dyn_cast<CXXFunctionalCastExpr>(E)) {
+      E = CFCE->getSubExpr()->IgnoreParenImpCasts();
+      continue;
+    }
+    if (const auto *RE = dyn_cast<CXXReinterpretCastExpr>(E)) {
+      E = RE->getSubExpr()->IgnoreParenImpCasts();
+      continue;
+    }
+    if (const auto *SE = dyn_cast<CXXStaticCastExpr>(E)) {
+      E = SE->getSubExpr()->IgnoreParenImpCasts();
+      continue;
+    }
+    break;
+  }
+  return E;
+}
+
+bool extractConstantUramAddress(const Expr *E, ASTContext &Ctx, APSInt &Addr) {
+  E = stripPointerValueExpression(E);
+  if (E->isTypeDependent() || E->isValueDependent())
+    return false;
+  if (E->isNullPointerConstant(Ctx, Expr::NPC_ValueDependentIsNotNull)) {
+    unsigned Bits = Ctx.getTypeSize(Ctx.getUIntPtrType());
+    Addr = APSInt(APInt(Bits, 0u), false);
+    return true;
+  }
+  if (!E->getType()->isIntegralOrEnumerationType())
+    return false;
+  Expr::EvalResult ER;
+  if (!E->EvaluateAsInt(ER, Ctx))
+    return false;
+  Addr = ER.Val.getInt();
+  return true;
+}
+
+void diagnoseIfNPUURAMPointerOutOfRange(SemaRISCV &SR, const VarDecl *VD,
+                                        QualType PointerTy, Expr *Val,
+                                        SourceLocation DiagLoc) {
+  if (!VD || !Val)
+    return;
+  if (!SR.getASTContext().getTargetInfo().getTriple().isRISCV())
+    return;
+  if (!isNPUURAMPointerType(PointerTy))
+    return;
+
+  APSInt Addr;
+  if (!extractConstantUramAddress(Val, SR.getASTContext(), Addr))
+    return;
+  if (Addr.isNegative() || Addr.uge(NPUURAMWindowByteSize))
+    SR.Diag(DiagLoc, diag::err_riscv_npu_uram_address_out_of_range)
+        << toString(Addr, 10) << (unsigned)(NPUURAMWindowByteSize - 1);
+}
+
+const NPUPtrASAttr *getNPUPtrASAttr(const FunctionDecl *FD) {
+  if (const auto *A = FD->getAttr<NPUPtrASAttr>())
+    return A;
+  if (const FunctionDecl *Pattern = FD->getTemplateInstantiationPattern())
+    if (const auto *A = Pattern->getAttr<NPUPtrASAttr>())
+      return A;
+  if (const FunctionTemplateDecl *FTD = FD->getPrimaryTemplate())
+    if (const auto *A = FTD->getTemplatedDecl()->getAttr<NPUPtrASAttr>())
+      return A;
+  return nullptr;
+}
+
+bool exprHasNPUURAMPointee(const Expr *E, ASTContext &Ctx) {
+  QualType T = E->IgnoreParenImpCasts()->getType();
+  if (T->isPointerType())
+    return isNPUURAMAddressSpace(T->getPointeeType().getAddressSpace());
+  if (T->isArrayType())
+    return isNPUURAMAddressSpace(T.getAddressSpace()) ||
+           isNPUURAMAddressSpace(Ctx.getBaseElementType(T).getAddressSpace());
+  return false;
+}
+
+bool isTrustedNPUPtrASParameter(const Expr *E, NPUPtrASAttr::Space Expected) {
+  const auto *DRE = dyn_cast<DeclRefExpr>(E->IgnoreParenImpCasts());
+  if (!DRE)
+    return false;
+  const auto *PVD = dyn_cast<ParmVarDecl>(DRE->getDecl());
+  if (!PVD)
+    return false;
+  const auto *Owner = dyn_cast<FunctionDecl>(PVD->getDeclContext());
+  if (!Owner)
+    return false;
+  const NPUPtrASAttr *OwnerAttr = getNPUPtrASAttr(Owner);
+  if (!OwnerAttr)
+    return false;
+  unsigned Idx = PVD->getFunctionScopeIndex();
+  if (Idx >= OwnerAttr->spaces_size())
+    return false;
+  return OwnerAttr->spaces_begin()[Idx] == Expected;
+}
+
+} // namespace
+
+void SemaRISCV::checkNPUURAMVarDeclInitializer(const VarDecl *VD, Expr *Init) {
+  if (!VD || !Init)
+    return;
+  diagnoseIfNPUURAMPointerOutOfRange(*this, VD, VD->getType(), Init,
+                                     Init->getBeginLoc());
+}
+
+void SemaRISCV::checkNPUURAMPointerAssignment(const VarDecl *VD,
+                                              QualType LHSType,
+                                              Expr *RHS, SourceLocation Loc) {
+  if (!VD || !RHS)
+    return;
+  diagnoseIfNPUURAMPointerOutOfRange(*this, VD, LHSType, RHS, RHS->getBeginLoc());
+}
+
+void SemaRISCV::checkNPUPtrASCall(const FunctionDecl *FD,
+                                  const CallExpr *TheCall) {
+  const NPUPtrASAttr *A = getNPUPtrASAttr(FD);
+  if (!A || !TheCall)
+    return;
+
+  unsigned NumSpaces = A->spaces_size();
+  unsigned NumArgs = TheCall->getNumArgs();
+  unsigned Limit = NumSpaces < NumArgs ? NumSpaces : NumArgs;
+  for (unsigned I = 0; I < Limit; ++I) {
+    NPUPtrASAttr::Space Space = A->spaces_begin()[I];
+    if (Space == NPUPtrASAttr::Any || Space == NPUPtrASAttr::Integer)
+      continue;
+
+    const Expr *Arg = TheCall->getArg(I);
+    QualType ArgTy = Arg->IgnoreParenImpCasts()->getType();
+    const bool IsIntegerAddr = ArgTy->isIntegralOrUnscopedEnumerationType();
+    const bool IsUram = exprHasNPUURAMPointee(Arg, getASTContext()) ||
+                        isTrustedNPUPtrASParameter(Arg, Space) ||
+                        IsIntegerAddr;
+
+    if (Space == NPUPtrASAttr::URAM && !IsUram) {
+      Diag(Arg->getBeginLoc(), diag::err_npu_invalid_pointer_address_space)
+          << FD << "'__uram__'" << Arg->getSourceRange();
+    } else if (Space == NPUPtrASAttr::DRAM &&
+               exprHasNPUURAMPointee(Arg, getASTContext()) &&
+               !isTrustedNPUPtrASParameter(Arg, Space)) {
+      Diag(Arg->getBeginLoc(), diag::err_npu_invalid_pointer_address_space)
+          << FD << "a DRAM pointer" << Arg->getSourceRange();
+    }
+  }
 }
 
 SemaRISCV::SemaRISCV(Sema &S) : SemaBase(S) {}

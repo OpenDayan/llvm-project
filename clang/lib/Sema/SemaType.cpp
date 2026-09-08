@@ -6714,6 +6714,38 @@ static void HandleAddressSpaceTypeAttribute(QualType &Type,
   }
 }
 
+/// HandleNPUURAMTypeAttribute - Qualify the given type with the NPU URAM
+/// address space. On targets without URAM the attribute is accepted and
+/// ignored, so that a header can declare the same interface for host and
+/// device translation units.
+static void HandleNPUURAMTypeAttribute(QualType &Type, const ParsedAttr &Attr,
+                                       TypeProcessingState &State) {
+  Sema &S = State.getSema();
+
+  if (!S.Context.getTargetInfo().getTriple().isRISCV())
+    return;
+
+  if (Type->isFunctionType()) {
+    S.Diag(Attr.getLoc(), diag::err_attribute_address_function_type);
+    Attr.setInvalid();
+    return;
+  }
+
+  LangAS ASIdx = getNPUURAMAddressSpace();
+  if (DiagnoseMultipleAddrSpaceAttributes(S, Type.getAddressSpace(), ASIdx,
+                                          Attr.getLoc())) {
+    Attr.setInvalid();
+    return;
+  }
+
+  // Keep the attribute as sugar so that diagnostics quote the qualifier the
+  // user wrote instead of a bare address space number.
+  ASTContext &Ctx = S.Context;
+  QualType EquivType = Ctx.getAddrSpaceQualType(Type, ASIdx);
+  Type = State.getAttributedType(::new (Ctx) NPUURAMAttr(Ctx, Attr), Type,
+                                 EquivType);
+}
+
 static void HandleOverflowBehaviorAttr(QualType &Type, const ParsedAttr &Attr,
                                        TypeProcessingState &State) {
   Sema &S = State.getSema();
@@ -9118,6 +9150,10 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,
     case ParsedAttr::AT_OpenCLGenericAddressSpace:
     case ParsedAttr::AT_AddressSpace:
       HandleAddressSpaceTypeAttribute(type, attr, state);
+      attr.setUsedAsTypeAttr();
+      break;
+    case ParsedAttr::AT_NPUURAM:
+      HandleNPUURAMTypeAttribute(type, attr, state);
       attr.setUsedAsTypeAttr();
       break;
     case ParsedAttr::AT_HLSLGroupSharedAddressSpace:

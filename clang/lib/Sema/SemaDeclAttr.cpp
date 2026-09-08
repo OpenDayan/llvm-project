@@ -25,6 +25,7 @@
 #include "clang/AST/ExprCXX.h"
 #include "clang/AST/Mangle.h"
 #include "clang/AST/Type.h"
+#include "clang/Basic/AddressSpaces.h"
 #include "clang/Basic/CharInfo.h"
 #include "clang/Basic/Cuda.h"
 #include "clang/Basic/DarwinSDKInfo.h"
@@ -3549,6 +3550,73 @@ static void handleSectionAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
                      ASTContext::PSF_Execute | ASTContext::PSF_Read,
                      cast<NamedDecl>(D));
   }
+}
+
+static void handleNPUURAMAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+  // Type qualification is handled in SemaType. Here we only place objects that
+  // themselves live in URAM into the .npu_uram section.
+  if (AL.isUsedAsTypeAttr()) {
+    auto *VD = dyn_cast<VarDecl>(D);
+    if (!VD || !isNPUURAMAddressSpace(VD->getType().getAddressSpace()))
+      return;
+    if (D->hasAttr<SectionAttr>())
+      return;
+    D->addAttr(SectionAttr::CreateImplicit(S.Context, ".npu_uram",
+                                           AL.getRange(),
+                                           SectionAttr::GNU_section));
+    return;
+  }
+
+  // Decl-only form (should be rare once the type attribute path is used).
+  handleSimpleAttribute<NPUURAMAttr>(S, D, AL);
+  auto *VD = dyn_cast<VarDecl>(D);
+  if (!VD || !isNPUURAMAddressSpace(VD->getType().getAddressSpace()))
+    return;
+  if (D->hasAttr<SectionAttr>())
+    return;
+  D->addAttr(SectionAttr::CreateImplicit(S.Context, ".npu_uram",
+                                         AL.getRange(),
+                                         SectionAttr::GNU_section));
+}
+
+static void handleNPUPtrASAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+  if (!AL.checkAtLeastNumArgs(S, 1))
+    return;
+
+  SmallVector<NPUPtrASAttr::Space, 8> Spaces;
+  for (unsigned ArgIndex = 0; ArgIndex < AL.getNumArgs(); ++ArgIndex) {
+    NPUPtrASAttr::Space Space;
+    StringRef SpaceString;
+    SourceLocation Loc;
+    if (AL.isArgIdent(ArgIndex)) {
+      IdentifierLoc *Ident = AL.getArgAsIdent(ArgIndex);
+      SpaceString = Ident->getIdentifierInfo()->getName();
+      Loc = Ident->getLoc();
+    } else if (!S.checkStringLiteralArgumentAttr(AL, ArgIndex, SpaceString,
+                                                 &Loc)) {
+      return;
+    }
+
+    if (!NPUPtrASAttr::ConvertStrToSpace(SpaceString, Space)) {
+      S.Diag(Loc, diag::warn_attribute_type_not_supported) << AL << SpaceString;
+      return;
+    }
+    Spaces.push_back(Space);
+  }
+
+  unsigned NumParams = 0;
+  if (const auto *FD = dyn_cast<FunctionDecl>(D))
+    NumParams = FD->getNumParams();
+  else if (const auto *FTD = dyn_cast<FunctionTemplateDecl>(D))
+    NumParams = FTD->getTemplatedDecl()->getNumParams();
+  if (NumParams && Spaces.size() != NumParams) {
+    S.Diag(AL.getLoc(), diag::err_npu_ptr_as_arg_count)
+        << (unsigned)Spaces.size() << cast<NamedDecl>(D) << NumParams;
+    return;
+  }
+
+  D->addAttr(::new (S.Context)
+                 NPUPtrASAttr(S.Context, AL, Spaces.data(), Spaces.size()));
 }
 
 static bool isValidCodeModelAttr(llvm::Triple &Triple, StringRef Str) {
@@ -7961,6 +8029,12 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
     break;
   case ParsedAttr::AT_Section:
     handleSectionAttr(S, D, AL);
+    break;
+  case ParsedAttr::AT_NPUURAM:
+    handleNPUURAMAttr(S, D, AL);
+    break;
+  case ParsedAttr::AT_NPUPtrAS:
+    handleNPUPtrASAttr(S, D, AL);
     break;
   case ParsedAttr::AT_CodeModel:
     handleCodeModelAttr(S, D, AL);

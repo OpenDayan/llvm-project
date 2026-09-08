@@ -99,6 +99,27 @@ inline bool isPtrSizeAddressSpace(LangAS AS) {
           AS == LangAS::ptr64);
 }
 
+/// Target address space that the npu_uram attribute maps to. URAM is the
+/// per-Core on-chip scratchpad of the NPU; it shares the RISC-V byte-addressed
+/// space, so casts to and from it are no-ops at the machine level and the
+/// address space exists purely to let the front end tell URAM and DRAM apart.
+inline constexpr unsigned NPUURAMTargetAddressSpace = 1;
+
+/// Size in bytes of the URAM that belongs to one Core. A URAM address is an
+/// offset inside that window, so this is also the exclusive upper bound of a
+/// valid URAM address.
+inline constexpr unsigned long long NPUURAMWindowByteSize = 0x180000; // 1.5 MiB
+
+inline LangAS getNPUURAMAddressSpace() {
+  return getLangASFromTargetAS(NPUURAMTargetAddressSpace);
+}
+
+/// \return whether \p T is an object living in URAM, as opposed to a pointer
+/// to URAM held in an ordinary variable.
+inline bool isNPUURAMAddressSpace(LangAS AS) {
+  return AS == getNPUURAMAddressSpace();
+}
+
 } // namespace clang
 
 #endif // LLVM_CLANG_BASIC_ADDRESSSPACES_H

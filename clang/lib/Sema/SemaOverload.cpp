@@ -20,6 +20,7 @@
 #include "clang/AST/ExprCXX.h"
 #include "clang/AST/ExprObjC.h"
 #include "clang/AST/Type.h"
+#include "clang/Basic/AddressSpaces.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/DiagnosticOptions.h"
 #include "clang/Basic/OperatorKinds.h"
@@ -3096,9 +3097,18 @@ bool Sema::IsPointerConversion(Expr *From, QualType FromType, QualType ToType,
     return true;
   }
 
+  QualType ToPointeeType = ToTypePtr->getPointeeType();
+
+  // RISC-V NPU: an integer URAM address converts implicitly to a URAM
+  // pointer. DRAM / generic pointers still require an explicit cast.
+  if (FromType->isIntegralOrUnscopedEnumerationType() &&
+      isNPUURAMAddressSpace(ToPointeeType.getAddressSpace())) {
+    ConvertedType = ToType;
+    return true;
+  }
+
   // Beyond this point, both types need to be pointers
   // , including objective-c pointers.
-  QualType ToPointeeType = ToTypePtr->getPointeeType();
   if (FromType->isObjCObjectPointerType() && ToPointeeType->isVoidType() &&
       !getLangOpts().ObjCAutoRefCount) {
     ConvertedType = BuildSimilarlyQualifiedPointerType(
@@ -3652,6 +3662,14 @@ bool Sema::CheckPointerConversion(Expr *From, QualType ToType,
   bool IsCStyleOrFunctionalCast = IgnoreBaseAccess;
 
   Kind = CK_BitCast;
+
+  if (FromType->isIntegralOrUnscopedEnumerationType() &&
+      ToType->isPointerType()) {
+    Kind = From->isNullPointerConstant(Context, Expr::NPC_ValueDependentIsNull)
+               ? CK_NullToPointer
+               : CK_IntegralToPointer;
+    return false;
+  }
 
   if (Diagnose && !IsCStyleOrFunctionalCast && !FromType->isAnyPointerType() &&
       From->isNullPointerConstant(Context, Expr::NPC_ValueDependentIsNotNull) ==

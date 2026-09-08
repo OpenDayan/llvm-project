@@ -289,6 +289,10 @@ class RVInstCommon<dag outs, dag ins, string opcodestr, string argstr,
 
   bit HasTkOp = 0;
   let TSFlags{31} = HasTkOp;
+
+  // RVT 64-bit instructions (opcode 0111111) must be 8-byte aligned.
+  bit Requires64BitAlignment = 0;
+  let TSFlags{32} = Requires64BitAlignment;
 }
 
 class RVInst<dag outs, dag ins, string opcodestr, string argstr,

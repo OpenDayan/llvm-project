@@ -8930,8 +8930,13 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
   // This includes arrays of objects with address space qualifiers, but not
   // automatic variables that point to other address spaces.
   // ISO/IEC TR 18037 S5.1.2
+  //
+  // A block-scope object declared in NPU URAM is exempt: URAM is a scratchpad
+  // with no stack, so such an object is given static storage in URAM instead.
+  bool IsNPUURAMObject = isNPUURAMAddressSpace(T.getAddressSpace()) &&
+                         Context.getTargetInfo().getTriple().isRISCV();
   if (!getLangOpts().OpenCL && NewVD->hasLocalStorage() &&
-      T.getAddressSpace() != LangAS::Default) {
+      T.getAddressSpace() != LangAS::Default && !IsNPUURAMObject) {
     Diag(NewVD->getLocation(), diag::err_as_qualified_auto_decl) << 0;
     NewVD->setInvalidDecl();
     return;
@@ -14191,6 +14196,9 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init, bool DirectInit) {
   // "ary" transitions from an IncompleteArrayType to a ConstantArrayType.
   if (!VDecl->isInvalidDecl() && (DclT != SavT))
     VDecl->setType(DclT);
+
+  if (!VDecl->isInvalidDecl())
+    RISCV().checkNPUURAMVarDeclInitializer(VDecl, Init);
 
   if (!VDecl->isInvalidDecl()) {
     checkUnsafeAssigns(VDecl->getLocation(), VDecl->getType(), Init);

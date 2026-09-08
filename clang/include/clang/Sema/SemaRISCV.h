@@ -26,6 +26,7 @@ namespace sema {
 class RISCVIntrinsicManager;
 } // namespace sema
 
+class Expr;
 class ParsedAttr;
 class TargetInfo;
 
@@ -62,6 +63,11 @@ public:
                              const SmallVectorImpl<SourceLocation> &Locs,
                              SmallVectorImpl<SmallString<64>> &NewParams,
                              SourceLocation AttrLoc);
+
+  void checkNPUURAMVarDeclInitializer(const VarDecl *VD, Expr *Init);
+  void checkNPUURAMPointerAssignment(const VarDecl *VD, QualType LHSType,
+                                     Expr *RHS, SourceLocation Loc);
+  void checkNPUPtrASCall(const FunctionDecl *FD, const CallExpr *TheCall);
 };
 
 std::unique_ptr<sema::RISCVIntrinsicManager>

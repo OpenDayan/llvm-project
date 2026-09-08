@@ -122,6 +122,7 @@ tools = [
     "apinotes-test",
     "c-index-test",
     "clang-diff",
+    "dycc",
     "clang-format",
     "clang-repl",
     "llvm-objdump",

@@ -154,6 +154,214 @@ let Features = "zihintpause", Attributes = [NoThrow] in
 def pause : RISCVBuiltin<"void()">;
 
 //===----------------------------------------------------------------------===//
+// RVT LSU extension.
+//===----------------------------------------------------------------------===//
+let Features = "txlsu|ztxlsu", Attributes = [NoThrow] in {
+def tx_lsu_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
+def tx_lsu_tcsr_write : RISCVBuiltin<"void(long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2u : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2u_g : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2u_s : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2u_sg : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2d : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2d_g : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2d_s : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_u2d_sg : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2u : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2u_g : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2u_s : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2u_sg : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2d : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2d_g : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2d_s : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_lsu_dma_d2d_sg : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+} // Features = "txlsu|ztxlsu", Attributes = [NoThrow]
+
+//===----------------------------------------------------------------------===//
+// RVT MAT extension.
+//===----------------------------------------------------------------------===//
+let Features = "txmat", Attributes = [NoThrow] in {
+def tx_mat_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
+def tx_mat_tcsr_write : RISCVBuiltin<"void(long int, _Constant unsigned int)">;
+// Keep MAT builtin signatures aligned with npu-kernels gen_npu_instruction_32.h:
+// tx.mat.setptr(rd, rs1, rs2, group)
+def tx_mat_setptr : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int)">;
+def tx_mat_mm : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int)">;
+def tx_mat_mma : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int)">;
+def tx_mat_conv2d : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int)">;
+def tx_mat_conv2da : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int)">;
+} // Features = "txmat", Attributes = [NoThrow]
+
+
+//===----------------------------------------------------------------------===//
+// NPUURAM extension.
+//===----------------------------------------------------------------------===//
+
+let Features = "txbase", Attributes = [NoThrow, Const] in {
+  def is_uram : RISCVBuiltin<"int(long int)">;
+}
+
+
+//===----------------------------------------------------------------------===//
+// RVT BASE extension.
+//===----------------------------------------------------------------------===//
+let Features = "txbase", Attributes = [NoThrow] in {
+def tx_base_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int, _Constant unsigned int)">;
+def tx_base_tcsr_write : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_mat_sb_produce : RISCVBuiltin<"void(long int)">;
+def tx_mat_sb_bar : RISCVBuiltin<"long int()">;
+def tx_vec_sb_produce : RISCVBuiltin<"void(long int)">;
+def tx_vec_sb_bar : RISCVBuiltin<"long int()">;
+def tx_lsu_sb_produce : RISCVBuiltin<"void(long int)">;
+def tx_lsu_sb_bar : RISCVBuiltin<"long int()">;
+def tx_macro_sb_produce : RISCVBuiltin<"void(long int)">;
+def tx_macro_sb_bar : RISCVBuiltin<"long int()">;
+def tx_sb_get_any : RISCVBuiltin<"long int()">;
+} // Features = "txbase", Attributes = [NoThrow]
+
+//===----------------------------------------------------------------------===//
+// RVT VEC extension.
+//===----------------------------------------------------------------------===//
+let Features = "txvec", Attributes = [NoThrow] in {
+def tx_vec_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
+def tx_vec_tcsr_write : RISCVBuiltin<"void(long int, _Constant unsigned int)">;
+def tx_vec_v_load : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_load : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_const_load : RISCVBuiltin<"void(long int, _Constant unsigned int)">;
+def tx_vec_v_store : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_store : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_u2v : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_sm2v : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_u2v_broadcast32 : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_sm2v_broadcast32 : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_s2v_broadcast32 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_g2v_broadcast32 : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_u2s : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_sm2s : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_g2s : RISCVBuiltin<"void(long int, _Constant unsigned int)">;
+def tx_vec_lsu_u2v_mask : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_sm2v_mask : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_u2v_mask_broadcast32 : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_sm2v_mask_broadcast32 : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_s2v_mask_broadcast32 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_g2v_mask_broadcast32 : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_v2u : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_v2sm : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_s2u : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_s2sm : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_v2u_mask : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_lsu_v2sm_mask : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_sm2v_sparse : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_sparse : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_sparse_int32_add : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_sparse_int32_and : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_sparse_int32_or : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_sparse_int32_xor : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_sm2v_dyn : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_dyn : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_dyn_int32_add : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_dyn_int32_and : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_dyn_int32_or : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v2sm_dyn_int32_xor : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_xor : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_xor_dyn : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_ror : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_ror_dyn : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_broadcast : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_broadcast_dyn : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_compress : RISCVBuiltin<"void(long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_shuffle_compress_dyn : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_bitwise : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_rol : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_sll : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_sra : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_srl : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_add : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_sub : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_mulu24 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_mul24 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_maxu : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_minu : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_max : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_min : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_fp32_add : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_fp32_sub : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_fp32_mul : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_fp32_max : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_fp32_min : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_mux2 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_int32_cmp : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_vv_fp32_cmp : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v_int32_sll : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v_int32_sra : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v_int32_srl : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_v_fp32_sfu : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_fp32_int32 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_s32_fp32 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_fp32_fp16 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_fp32_bf16 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_fp16_fp32 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_bf16_fp32 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_mxfp8_bf16 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_cvt_mxfp4_bf16 : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_rol : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_sll : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_sra : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_srl : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_add : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_sub : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_mul : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_iter_getdim : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_iter_gets : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_iter_getv : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_bitwise : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_bitwise_beq : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_bitwise_bne : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_blt : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_vec_s_int32_bge : RISCVBuiltin<"void(_Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+} // Features = "txvec", Attributes = [NoThrow]
+
+//===----------------------------------------------------------------------===//
+// RVT MACRO extension.
+//===----------------------------------------------------------------------===//
+let Features = "txmacro", Attributes = [NoThrow] in {
+def tx_macro_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
+def tx_macro_tcsr_write : RISCVBuiltin<"void(long int, _Constant unsigned int)">;
+def tx_macro_elemwise_vv_add_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_elemwise_sv_add_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_elemwise_iv_add_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+
+def tx_macro_elemwise_add_s32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_sub_s32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_mul_s32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_add_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_sub_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_mul_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_max_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_elemwise_min_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+
+def tx_macro_convert_s32_f32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_fp32_s32_round : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_fp32_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_fp32_e4m3 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_fp32_fp16 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_fp32_bf16 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+
+def tx_macro_sfu_exp : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_sfu_log2_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_sfu_exp2_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_sfu_sin_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_sfu_cos_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_sfu_rsqrt_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_sfu_recip_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+
+def tx_macro_reduce_add_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_reduce_max_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_reduce_min_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_reduce_add_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_reduce_max_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+def tx_macro_reduce_min_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int, _Constant unsigned int)">;
+} // Features = "txmacro", Attributes = [NoThrow]
 // P extension.
 //===----------------------------------------------------------------------===//
 let Features = "experimental-p", Attributes = [NoThrow, Const] in {

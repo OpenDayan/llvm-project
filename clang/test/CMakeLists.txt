@@ -109,6 +109,7 @@ list(APPEND CLANG_TEST_DEPS
   clang-ssaf-linker
   clang-sycl-linker
   diagtool
+  dycc
   hmaptool
   )
 

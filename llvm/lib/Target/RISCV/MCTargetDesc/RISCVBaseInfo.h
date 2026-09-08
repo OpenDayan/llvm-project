@@ -277,6 +277,10 @@ enum {
 
   HasTKOpShift = HasTMOpShift + 1,
   HasTKOpMask = 1ULL << HasTKOpShift,
+
+  // RVT 64-bit instructions must be emitted on an 8-byte (64-bit) boundary.
+  Requires64BitAlignmentShift = HasTKOpShift + 1,
+  Requires64BitAlignmentMask = 1ULL << Requires64BitAlignmentShift,
 };
 
 // Helper functions to read TSFlags.
@@ -352,6 +356,10 @@ static inline bool hasTWidenOp(uint64_t TSFlags) {
 static inline bool hasTMOp(uint64_t TSFlags) { return TSFlags & HasTMOpMask; }
 
 static inline bool hasTKOp(uint64_t TSFlags) { return TSFlags & HasTKOpMask; }
+
+static inline bool requires64BitAlignment(uint64_t TSFlags) {
+  return TSFlags & Requires64BitAlignmentMask;
+}
 
 static inline unsigned getTWidenOpNum(const MCInstrDesc &Desc) {
   assert(hasTWidenOp(Desc.TSFlags));

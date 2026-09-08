@@ -19,8 +19,10 @@
 #include "MCTargetDesc/RISCVTargetStreamer.h"
 #include "RISCV.h"
 #include "RISCVConstantPoolValue.h"
+#include "RISCVInstrInfo.h"
 #include "RISCVMachineFunctionInfo.h"
 #include "RISCVRegisterInfo.h"
+#include "RISCVSubtarget.h"
 #include "TargetInfo/RISCVTargetInfo.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/ADT/Statistic.h"
@@ -39,6 +41,7 @@
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSymbol.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/Alignment.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/TargetParser/RISCVISAInfo.h"
@@ -272,7 +275,11 @@ bool RISCVAsmPrinter::EmitToStreamer(MCStreamer &S, const MCInst &Inst,
   bool Res = RISCVRVC::compress(CInst, Inst, SubtargetInfo);
   if (Res)
     ++RISCVNumInstrsCompressed;
-  S.emitInstruction(Res ? CInst : Inst, SubtargetInfo);
+  const MCInst &Emitted = Res ? CInst : Inst;
+  if (RISCVII::requires64BitAlignment(
+          STI->getInstrInfo()->get(Emitted.getOpcode()).TSFlags))
+    S.emitCodeAlignment(Align(8), SubtargetInfo);
+  S.emitInstruction(Emitted, SubtargetInfo);
   return Res;
 }
 

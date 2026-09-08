@@ -4713,6 +4713,9 @@ bool Sema::CheckFunctionCall(FunctionDecl *FDecl, CallExpr *TheCall,
             IsMemberFunction, TheCall->getRParenLoc(),
             TheCall->getCallee()->getSourceRange(), CallType);
 
+  if (Context.getTargetInfo().getTriple().isRISCV())
+    RISCV().checkNPUPtrASCall(FDecl, TheCall);
+
   IdentifierInfo *FnInfo = FDecl->getIdentifier();
   // None of the checks below are needed for functions that don't have
   // simple names (e.g., C++ conversion functions).

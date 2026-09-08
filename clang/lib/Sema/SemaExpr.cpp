@@ -33,6 +33,7 @@
 #include "clang/AST/StmtVisitor.h"
 #include "clang/AST/Type.h"
 #include "clang/AST/TypeLoc.h"
+#include "clang/Basic/AddressSpaces.h"
 #include "clang/Basic/Builtins.h"
 #include "clang/Basic/DiagnosticSema.h"
 #include "clang/Basic/PartialDiagnostic.h"
@@ -9894,6 +9895,9 @@ AssignConvertType Sema::CheckAssignmentConstraints(QualType LHSType,
     // int -> T*
     if (RHSType->isIntegerType()) {
       Kind = CK_IntegralToPointer; // FIXME: null?
+      // RISC-V NPU: integer addresses convert to URAM pointers without a cast.
+      if (isNPUURAMAddressSpace(LHSPointer->getPointeeType().getAddressSpace()))
+        return AssignConvertType::Compatible;
       return AssignConvertType::IntToPointer;
     }
 
@@ -14611,6 +14615,16 @@ QualType Sema::CheckAssignmentOperands(Expr *LHSExpr, ExprResult &RHS,
   if (DiagnoseAssignmentResult(ConvTy, Loc, LHSType, RHSType, RHS.get(),
                                AssignmentAction::Assigning))
     return QualType();
+
+  if (CompoundType.isNull() && Opc == BO_Assign && RHS.isUsable() &&
+      IsAssignConvertCompatible(ConvTy) &&
+      Context.getTargetInfo().getTriple().isRISCV()) {
+    if (const auto *DR = dyn_cast<DeclRefExpr>(LHSExpr->IgnoreParenCasts())) {
+      if (auto *LHSVar = dyn_cast<VarDecl>(DR->getDecl()))
+        RISCV().checkNPUURAMPointerAssignment(LHSVar, LHSType, RHS.get(),
+                                                Loc);
+    }
+  }
 
   CheckForNullPointerDereference(*this, LHSExpr);
 

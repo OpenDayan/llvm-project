@@ -6202,6 +6202,9 @@ CharUnits CodeGenModule::GetTargetTypeStoreSize(llvm::Type *Ty) const {
 }
 
 LangAS CodeGenModule::GetGlobalVarAddressSpace(const VarDecl *D) {
+  if (D && isTargetAddressSpace(D->getType().getAddressSpace()))
+    return D->getType().getAddressSpace();
+
   if (LangOpts.OpenCL) {
     LangAS AS = D ? D->getType().getAddressSpace() : LangAS::opencl_global;
     assert(AS == LangAS::opencl_global ||

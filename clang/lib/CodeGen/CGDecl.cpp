@@ -1482,6 +1482,19 @@ static bool shouldExtendLifetime(const ASTContext &Context,
 CodeGenFunction::AutoVarEmission
 CodeGenFunction::EmitAutoVarAlloca(const VarDecl &D) {
   QualType Ty = D.getType();
+
+  // An object declared in URAM has no stack storage; give it a private global
+  // in the URAM address space instead. A local pointer *into* URAM is an
+  // ordinary automatic variable and is not affected.
+  if (isNPUURAMAddressSpace(Ty.getAddressSpace()) &&
+      getTarget().getTriple().isRISCV()) {
+    EmitStaticVarDecl(D, llvm::GlobalValue::InternalLinkage);
+    AutoVarEmission emission(D);
+    emission.Addr = Address::invalid();
+    assert(emission.wasEmittedAsGlobal());
+    return emission;
+  }
+
   assert(
       Ty.getAddressSpace() == LangAS::Default ||
       (Ty.getAddressSpace() == LangAS::opencl_private && getLangOpts().OpenCL));
