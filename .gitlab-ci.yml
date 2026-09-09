@@ -1,0 +1,151 @@
+image: ubuntu:22.04
+
+stages:
+  - build
+  - release
+
+workflow:
+  rules:
+    # Only tag pushes create pipelines; branch pushes build nothing.
+    - if: '$CI_COMMIT_TAG'
+
+variables:
+  DEBIAN_FRONTEND: noninteractive
+  GIT_DEPTH: "1"
+  # Empty = use all runner cores ($(nproc) in the script). Override with a
+  # CI/CD variable if the runner is memory-constrained and the linker OOMs.
+  BUILD_JOBS: ""
+
+# Requires an x86_64 Docker executor; enable untagged jobs or add Runner tags.
+# Keep build, test and packaging together: LLVM build trees are large and
+# contain absolute paths, so only publish the final installation archive.
+build-and-package:
+  stage: build
+  tags:
+    - k3s
+  # Must not exceed Settings → CI/CD → General pipelines → Maximum job timeout.
+  timeout: 4h
+  before_script:
+    - test "$(uname -m)" = x86_64
+    - apt-get update
+    - |
+      apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        ninja-build \
+        python3 \
+        zstd \
+        ca-certificates \
+        zlib1g-dev \
+        libzstd-dev
+  script:
+    - mkdir -p build
+    - cd build
+    - |
+      cmake ../llvm \
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DLLVM_ENABLE_PROJECTS="mlir;clang" \
+        -DLLVM_TARGETS_TO_BUILD="X86;RISCV"
+    - BUILD_JOBS="${BUILD_JOBS:-$(nproc)}"
+    - ninja -j "$BUILD_JOBS"
+    - cd "$CI_PROJECT_DIR"
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        VERSION="${CI_COMMIT_TAG#v}"
+      else
+        VERSION="${CI_COMMIT_SHORT_SHA}"
+      fi
+      INSTALL_NAME="dycc-${VERSION}-x86_64-linux-gnu-ubuntu-22.04"
+      INSTALL_DIR="$CI_PROJECT_DIR/install/$INSTALL_NAME"
+      cmake --install build --prefix "$INSTALL_DIR"
+    # Test the installed tools, not just the build-tree binaries.
+    - |
+      "$INSTALL_DIR/bin/clang" --version
+      "$INSTALL_DIR/bin/clang++" --version
+      "$INSTALL_DIR/bin/mlir-opt" --version
+      "$INSTALL_DIR/bin/llvm-config" --version
+      mkdir -p build/smoke
+      printf 'int main(void) { return 0; }\n' > build/smoke/test.c
+      "$INSTALL_DIR/bin/clang" build/smoke/test.c -o build/smoke/test
+      build/smoke/test
+      printf 'int main() { return 0; }\n' > build/smoke/test.cpp
+      "$INSTALL_DIR/bin/clang++" build/smoke/test.cpp -o build/smoke/test-cxx
+      build/smoke/test-cxx
+      printf 'module {}\n' | "$INSTALL_DIR/bin/mlir-opt" > build/smoke/test.mlir
+      # No target headers or sysroot are required for this freestanding test.
+      "$INSTALL_DIR/bin/clang" --target=riscv64-unknown-elf \
+        -ffreestanding -c build/smoke/test.c -o build/smoke/test-riscv64.o
+      "$INSTALL_DIR/bin/llvm-readobj" --file-headers build/smoke/test-riscv64.o \
+        > build/smoke/test-riscv64.headers
+      grep -q 'Machine: EM_RISCV' build/smoke/test-riscv64.headers
+    - |
+      mkdir -p package
+      PACKAGE_NAME="$INSTALL_NAME.tar.xz"
+      # Archive the installation directory contents so bin/, include/,
+      # lib/, libexec/ and share/ are at the archive root.
+      tar -C "$INSTALL_DIR" -cJf "package/$PACKAGE_NAME" .
+      cd package
+      sha256sum "$PACKAGE_NAME" > "$PACKAGE_NAME.sha256"
+      sha256sum --check "$PACKAGE_NAME.sha256"
+      printf 'PACKAGE_NAME=%s\n' "$PACKAGE_NAME" > "$CI_PROJECT_DIR/package.env"
+      printf 'PACKAGE_VERSION=%s\n' "$CI_COMMIT_TAG" >> "$CI_PROJECT_DIR/package.env"
+      printf 'PACKAGE_JOB_ID=%s\n' "$CI_JOB_ID" >> "$CI_PROJECT_DIR/package.env"
+      ls -lh
+  artifacts:
+    name: "dycc-ubuntu22.04-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - package/
+    reports:
+      dotenv: package.env
+    expire_in: 30 days
+
+# release-cli cannot create releases with the CI Job Token (Projects API
+# returns 404), so call the Release API directly with a Project Access
+# Token stored as the masked RELEASE_TOKEN CI/CD variable (api scope).
+publish-release:
+  image: ubuntu:22.04
+  stage: release
+  tags:
+    - k3s
+  needs:
+    - job: build-and-package
+      artifacts: true
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends ca-certificates curl
+  script:
+    - test -n "$RELEASE_TOKEN" || { echo "RELEASE_TOKEN variable is not set"; exit 1; }
+    # Create the release only if it does not exist yet (safe on job retry).
+    - |
+      set -e
+      API="$CI_API_V4_URL/projects/$CI_PROJECT_ID"
+      CODE=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+        --header "PRIVATE-TOKEN: $RELEASE_TOKEN" \
+        "$API/releases/$CI_COMMIT_TAG")
+      if [ "$CODE" != "200" ]; then
+        curl --fail --silent --show-error \
+          --header "PRIVATE-TOKEN: $RELEASE_TOKEN" \
+          --data-urlencode "tag_name=$CI_COMMIT_TAG" \
+          --data-urlencode "name=dycc $CI_COMMIT_TAG" \
+          --data-urlencode "description=Automated dycc release.
+
+      Build environment: Ubuntu 22.04
+      LLVM projects: mlir;clang
+      LLVM targets: X86;RISCV
+      Commit: $CI_COMMIT_SHA" \
+          "$API/releases"
+      fi
+    - |
+      set -e
+      BASE_URL="$CI_PROJECT_URL/-/jobs/$PACKAGE_JOB_ID/artifacts/file/package"
+      for FILE in "$PACKAGE_NAME" "$PACKAGE_NAME.sha256"; do
+        curl --fail --silent --show-error \
+          --header "PRIVATE-TOKEN: $RELEASE_TOKEN" \
+          --data-urlencode "name=$FILE" \
+          --data-urlencode "url=$BASE_URL/$FILE" \
+          --data-urlencode "link_type=package" \
+          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases/$CI_COMMIT_TAG/assets/links"
+      done
+  rules:
+    - if: '$CI_COMMIT_TAG'
