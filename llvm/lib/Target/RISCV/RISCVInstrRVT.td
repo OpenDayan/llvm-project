@@ -307,9 +307,9 @@ class RVTMacroSFU<bits<8> op_v, string asmstr>
   let mayLoad = 1;
   let mayStore = 1;
   let Inst{63-48} = 0;
-  // npu-kernels SFU: [47:40]=op, [39:32]=0.
-  let Inst{47-40} = op_v;
-  let Inst{39-32} = 0b00000000;
+  // npu-kernels SFU: [47:40]=0, [39:32]=op.
+  let Inst{47-40} = 0b00000000;
+  let Inst{39-32} = op_v;
   let Inst{31-25} = 0b0000010;
   let Inst{24-20} = 0b00000;
   let Inst{19-15} = rs1;
