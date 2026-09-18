@@ -82,18 +82,6 @@ void test_base_tcsr_write_builtin(long v) {
   __builtin_riscv_tx_base_tcsr_write(v, 1, 3);
 }
 
-void test_macro_elemwise_vv_add_s32_builtin(long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_vv_add_s32(rs1, rs2, 2);
-}
-
-void test_macro_elemwise_sv_add_s32_builtin(long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_sv_add_s32(rs1, rs2, 2);
-}
-
-void test_macro_elemwise_iv_add_s32_builtin(long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_iv_add_s32(rs1, rs2, 2);
-}
-
 void test_macro_convert_s32_f32_builtin(long rd, long rs1) {
   __builtin_riscv_tx_macro_convert_s32_f32(rd, rs1, 2);
 }
@@ -120,38 +108,6 @@ void test_macro_sb_produce_builtin(long v) {
 
 long test_macro_sb_bar_builtin(void) {
   return __builtin_riscv_tx_macro_sb_bar();
-}
-
-void test_macro_elemwise_add_s32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_add_s32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_sub_s32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_sub_s32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_mul_s32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_mul_s32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_add_fp32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_add_fp32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_sub_fp32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_sub_fp32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_mul_fp32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_mul_fp32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_max_fp32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_max_fp32(rd, rs1, rs2, 2, 1);
-}
-
-void test_macro_elemwise_min_fp32_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_min_fp32(rd, rs1, rs2, 2, 1);
 }
 
 void test_macro_convert_fp32_s32_round_builtin(long rd, long rs1) {
@@ -455,14 +411,8 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK-LABEL: @test_base_tcsr_write_builtin
 // CHECK: call void asm sideeffect "tx.base.tcsr.write $0, $1, $2", "r,i,i"(i64 %{{.*}}, i32 1, i32 3)
 //
-// CHECK-LABEL: @test_macro_elemwise_vv_add_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.vv.add.s32 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
-// CHECK-LABEL: @test_macro_elemwise_sv_add_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.sv.add.s32 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
-// CHECK-LABEL: @test_macro_elemwise_iv_add_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.iv.add.s32 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
 // CHECK-LABEL: @test_macro_convert_s32_f32_builtin
 // CHECK: call void asm sideeffect "tx.macro.convert.s32.f32 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
@@ -485,29 +435,13 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK-LABEL: @test_macro_sb_bar_builtin
 // CHECK: call i64 asm sideeffect "tx.macro.sb.bar $0", "=r"()
 //
-// CHECK-LABEL: @test_macro_elemwise_add_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.add.s32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_sub_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.sub.s32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_mul_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.mul.s32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_add_fp32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.add.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_sub_fp32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.sub.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_mul_fp32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.mul.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_max_fp32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.max.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
-// CHECK-LABEL: @test_macro_elemwise_min_fp32_builtin
-// CHECK: call void asm sideeffect "tx.macro.elemwise.min.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
 // CHECK-LABEL: @test_macro_convert_fp32_s32_round_builtin
 // CHECK: call void asm sideeffect "tx.macro.convert.fp32.s32.round $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)

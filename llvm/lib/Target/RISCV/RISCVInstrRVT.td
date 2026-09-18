@@ -210,7 +210,7 @@ class RVTInst64<dag outs, dag ins, string opcodestr, string argstr,
 }
 
 class RVTMacroElemwise<bits<2> bcast_v, bits<6> op_v, bits<8> dtype_v, string asmstr>
-  : RVTInst64<(outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2, uimm3:$group),
+  : RVTInst64<(outs), (ins GPR:$rd, GPR:$rs1, GPR:$rs2, uimm3:$group),
              asmstr, "", [], InstFormatOther> {
   bits<5> rd;
   bits<5> rs1;
@@ -231,49 +231,14 @@ class RVTMacroElemwise<bits<2> bcast_v, bits<6> op_v, bits<8> dtype_v, string as
   let Inst{6-0} = OPC_RVT64.Value;
 }
 
-class RVTMacroElemwiseBcast<bits<2> bcast_v, bits<6> op_v, bits<8> dtype_v,
-                            string asmstr>
-  : RVTInst64<(outs), (ins GPR:$rs1, GPR:$rs2, uimm3:$group),
-             asmstr, "", [], InstFormatOther> {
-  bits<5> rs1;
-  bits<5> rs2;
-  bits<3> group;
-  let hasSideEffects = 1;
-  let mayLoad = 1;
-  let mayStore = 1;
-  let Inst{63-48} = 0;
-  let Inst{47-46} = bcast_v;
-  let Inst{45-40} = op_v;
-  let Inst{39-32} = dtype_v;
-  let Inst{31-25} = 0b0000000;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = rs1;
-  let Inst{14-12} = group;
-  let Inst{11-7} = rs1;
-  let Inst{6-0} = OPC_RVT64.Value;
-}
-
-class RVTMacroElemwiseVarBcast<bits<6> op_v, bits<8> dtype_v, string asmstr>
-  : RVTInst64<(outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2, uimm3:$group, uimm2:$broadcast),
-             asmstr, "", [], InstFormatOther> {
-  bits<5> rd;
-  bits<5> rs1;
-  bits<5> rs2;
-  bits<3> group;
-  bits<2> broadcast;
-  let hasSideEffects = 1;
-  let mayLoad = 1;
-  let mayStore = 1;
-  let Inst{63-48} = 0;
-  let Inst{47-46} = broadcast;
-  let Inst{45-40} = op_v;
-  let Inst{39-32} = dtype_v;
-  let Inst{31-25} = 0b0000000;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = rs1;
-  let Inst{14-12} = group;
-  let Inst{11-7} = rd;
-  let Inst{6-0} = OPC_RVT64.Value;
+// The specification defines three broadcast modes with independent operands.
+multiclass RVTMacroElemwiseForms<bits<6> op, bits<8> dtype, string suffix> {
+  def _VV : RVTMacroElemwise<0, op, dtype,
+    "tx.macro.elemwise.vv." # suffix # " $rd, $rs1, $rs2, $group">;
+  def _SV : RVTMacroElemwise<1, op, dtype,
+    "tx.macro.elemwise.sv." # suffix # " $rd, $rs1, $rs2, $group">;
+  def _IV : RVTMacroElemwise<2, op, dtype,
+    "tx.macro.elemwise.iv." # suffix # " $rd, $rs1, $rs2, $group">;
 }
 
 class RVTMacroConvert<bits<8> out_t, bits<8> in_t, string asmstr>
@@ -1382,33 +1347,43 @@ def RVT_VEC_SHUFFLE_COMPRESS_DYN : RVTVecShuffleDyn<0b111,
 } // Predicates = [HasTXVecOrZTXVec]
 
 // Macro.
-let Predicates = [HasTXMacroOrZTXMacro], hasSideEffects = 1 in {
-def RVT_MACRO_ELEMWISE_VV_ADD_S32 : RVTMacroElemwiseBcast<0b00, 0b000000, 0x20,
-  "tx.macro.elemwise.vv.add.s32 $rs1, $rs2, $group">;
-def RVT_MACRO_ELEMWISE_SV_ADD_S32 : RVTMacroElemwiseBcast<0b01, 0b000000, 0x20,
-  "tx.macro.elemwise.sv.add.s32 $rs1, $rs2, $group">;
-def RVT_MACRO_ELEMWISE_IV_ADD_S32 : RVTMacroElemwiseBcast<0b10, 0b000000, 0x20,
-  "tx.macro.elemwise.iv.add.s32 $rs1, $rs2, $group">;
+// Instruction classes set hasSideEffects themselves; InstAlias has no such field.
+let Predicates = [HasTXMacroOrZTXMacro] in {
+// FP32, S32 and U32 elementwise operations with independent destination pointers.
+defm RVT_MACRO_ELEMWISE_ADD_FP32 :
+  RVTMacroElemwiseForms<0, 0x00, "add.fp32">;
+defm RVT_MACRO_ELEMWISE_SUB_FP32 :
+  RVTMacroElemwiseForms<1, 0x00, "sub.fp32">;
+defm RVT_MACRO_ELEMWISE_MUL_FP32 :
+  RVTMacroElemwiseForms<2, 0x00, "mul.fp32">;
+defm RVT_MACRO_ELEMWISE_MAX_FP32 :
+  RVTMacroElemwiseForms<4, 0x00, "max.fp32">;
+defm RVT_MACRO_ELEMWISE_MIN_FP32 :
+  RVTMacroElemwiseForms<5, 0x00, "min.fp32">;
+defm RVT_MACRO_ELEMWISE_ADD_S32 :
+  RVTMacroElemwiseForms<0, 0x10, "add.s32">;
+defm RVT_MACRO_ELEMWISE_SUB_S32 :
+  RVTMacroElemwiseForms<1, 0x10, "sub.s32">;
+defm RVT_MACRO_ELEMWISE_MUL_S32 :
+  RVTMacroElemwiseForms<2, 0x10, "mul.s32">;
+defm RVT_MACRO_ELEMWISE_MAX_S32 :
+  RVTMacroElemwiseForms<4, 0x10, "max.s32">;
+defm RVT_MACRO_ELEMWISE_MIN_S32 :
+  RVTMacroElemwiseForms<5, 0x10, "min.s32">;
+
+defm RVT_MACRO_ELEMWISE_ADD_U32 :
+  RVTMacroElemwiseForms<0, 0x11, "add.u32">;
+defm RVT_MACRO_ELEMWISE_SUB_U32 :
+  RVTMacroElemwiseForms<1, 0x11, "sub.u32">;
+defm RVT_MACRO_ELEMWISE_MUL_U32 :
+  RVTMacroElemwiseForms<2, 0x11, "mul.u32">;
+defm RVT_MACRO_ELEMWISE_MAX_U32 :
+  RVTMacroElemwiseForms<4, 0x11, "max.u32">;
+defm RVT_MACRO_ELEMWISE_MIN_U32 :
+  RVTMacroElemwiseForms<5, 0x11, "min.u32">;
+
 def RVT_MACRO_REDUCE_ADD_S32 : RVTMacroReduce<0, 0b000000, 0x20,
   "tx.macro.reduce.add.s32 $rd, $rs1, $group">;
-
-// npu-kernels aligned macro forms.
-def RVT_MACRO_ELEMWISE_ADD_S32 : RVTMacroElemwiseVarBcast<0b000000, 0x20,
-  "tx.macro.elemwise.add.s32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_SUB_S32 : RVTMacroElemwiseVarBcast<0b000001, 0x20,
-  "tx.macro.elemwise.sub.s32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_MUL_S32 : RVTMacroElemwiseVarBcast<0b000010, 0x20,
-  "tx.macro.elemwise.mul.s32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_ADD_FP32 : RVTMacroElemwiseVarBcast<0b000000, 0x00,
-  "tx.macro.elemwise.add.fp32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_SUB_FP32 : RVTMacroElemwiseVarBcast<0b000001, 0x00,
-  "tx.macro.elemwise.sub.fp32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_MUL_FP32 : RVTMacroElemwiseVarBcast<0b000010, 0x00,
-  "tx.macro.elemwise.mul.fp32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_MAX_FP32 : RVTMacroElemwiseVarBcast<0b000100, 0x00,
-  "tx.macro.elemwise.max.fp32 $rd, $rs1, $rs2, $group, $broadcast">;
-def RVT_MACRO_ELEMWISE_MIN_FP32 : RVTMacroElemwiseVarBcast<0b000101, 0x00,
-  "tx.macro.elemwise.min.fp32 $rd, $rs1, $rs2, $group, $broadcast">;
 
 // Conversion suffixes are destination.source. MXFP8 uses E4M3.
 def RVT_MACRO_CONVERT_FP32_S32 : RVTMacroConvert<0x00, 0x10,

@@ -611,59 +611,231 @@ static __attribute__((always_inline)) inline void __tx_base_tcsr_write(long valu
   __builtin_riscv_tx_base_tcsr_write(value, UNIT, TCSR_ADDR);
 }
 
+// Elementwise operands: destination address, source 0, source 1.
+// In iv mode source 0 is a scalar value supplied by a GPR.
 template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_add_s32(long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_vv_add_s32(rs1, rs2, GROUP);
-}
-
-template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_add_s32(long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_sv_add_s32(rs1, rs2, GROUP);
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_add_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_add_fp32(rd, rs1, rs2, GROUP);
 }
 
 template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_add_s32(long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_iv_add_s32(rs1, rs2, GROUP);
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_add_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_add_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_add_s32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_add_s32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_add_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_add_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_sub_s32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_sub_s32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_sub_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_sub_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_mul_s32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_mul_s32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_sub_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_sub_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_add_fp32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_add_fp32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_sub_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_sub_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_sub_fp32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_sub_fp32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_mul_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_mul_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_mul_fp32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_mul_fp32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_mul_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_mul_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_max_fp32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_max_fp32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_mul_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_mul_fp32(rd, rs1, rs2, GROUP);
 }
 
-template <long GROUP, long BROADCAST>
-static __attribute__((always_inline)) inline void __tx_macro_elemwise_min_fp32(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_macro_elemwise_min_fp32(rd, rs1, rs2, GROUP, BROADCAST);
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_max_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_max_fp32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_max_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_max_fp32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_max_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_max_fp32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_min_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_min_fp32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_min_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_min_fp32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_min_fp32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_min_fp32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_add_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_add_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_add_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_add_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_add_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_add_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_sub_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_sub_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_sub_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_sub_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_sub_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_sub_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_mul_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_mul_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_mul_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_mul_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_mul_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_mul_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_max_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_max_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_max_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_max_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_max_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_max_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_min_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_min_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_min_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_min_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_min_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_min_s32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_add_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_add_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_add_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_add_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_add_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_add_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_sub_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_sub_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_sub_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_sub_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_sub_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_sub_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_mul_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_mul_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_mul_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_mul_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_mul_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_mul_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_max_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_max_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_max_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_max_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_max_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_max_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_vv_min_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_vv_min_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_sv_min_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_sv_min_u32(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_min_u32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_elemwise_iv_min_u32(rd, rs1, rs2, GROUP);
 }
 
 // Conversion suffixes are destination_source. MXFP8 uses E4M3.

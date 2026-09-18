@@ -1285,28 +1285,96 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 0);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_tcsr_write)
     ICEArguments |= (1 << 1);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_sub_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_sub_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_sub_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_mul_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_mul_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_mul_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_max_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_max_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_max_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_min_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_min_fp32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_min_fp32)
+    ICEArguments |= (1 << 3);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_s32)
-    ICEArguments |= (1 << 2);
+    ICEArguments |= (1 << 3);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_s32)
-    ICEArguments |= (1 << 2);
+    ICEArguments |= (1 << 3);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_s32)
-    ICEArguments |= (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_add_s32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sub_s32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_mul_s32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_add_fp32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sub_fp32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_mul_fp32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_max_fp32)
-    ICEArguments |= (1 << 3) | (1 << 4);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_min_fp32)
-    ICEArguments |= (1 << 3) | (1 << 4);
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_sub_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_sub_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_sub_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_mul_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_mul_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_mul_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_max_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_max_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_max_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_min_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_min_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_min_s32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_sub_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_sub_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_sub_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_mul_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_mul_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_mul_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_max_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_max_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_max_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_min_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_min_u32)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_min_u32)
+    ICEArguments |= (1 << 3);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s32_fp32)
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s16_s32)
@@ -2182,116 +2250,141 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy,
-        {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.vv.add.s32 $0, $1, $2", "r,r,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy,
-        {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.sv.add.s32 $0, $1, $2", "r,r,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy,
-        {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.iv.add.s32 $0, $1, $2", "r,r,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_add_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.add.s32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sub_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.sub.s32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_mul_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.mul.s32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_add_fp32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.add.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sub_fp32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.sub.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_mul_fp32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.mul.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_max_fp32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.max.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_elemwise_min_fp32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType(), Ops[4]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.elemwise.min.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
-  }
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.add.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.add.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.add.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_sub_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.sub.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_sub_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.sub.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_sub_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.sub.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_mul_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.mul.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_mul_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.mul.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_mul_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.mul.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_max_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.max.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_max_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.max.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_max_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.max.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_min_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.min.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_min_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.min.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_min_fp32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.min.fp32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.add.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.add.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.add.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_sub_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.sub.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_sub_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.sub.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_sub_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.sub.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_mul_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.mul.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_mul_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.mul.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_mul_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.mul.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_max_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.max.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_max_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.max.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_max_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.max.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_min_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.min.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_min_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.min.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_min_s32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.min.s32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_add_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.add.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_add_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.add.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_add_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.add.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_sub_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.sub.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_sub_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.sub.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_sub_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.sub.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_mul_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.mul.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_mul_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.mul.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_mul_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.mul.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_max_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.max.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_max_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.max.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_max_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.max.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_vv_min_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.vv.min.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_sv_min_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.sv.min.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_elemwise_iv_min_u32:
+    return EmitRVTInlineAsm("tx.macro.elemwise.iv.min.u32 $0, $1, $2, $3",
+                            "r,r,r,i");
   case RISCV::BI__builtin_riscv_tx_macro_convert_s32_fp32: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},

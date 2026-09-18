@@ -1,0 +1,185 @@
+# RUN: llvm-mc %s -triple=riscv64 -mattr=+txmacro -show-encoding | FileCheck %s --check-prefixes=ASM,COMMON
+# RUN: llvm-mc %s -triple=riscv64 -mattr=+ztxmacro -show-encoding | FileCheck %s --check-prefixes=ASM,COMMON
+# RUN: llvm-mc %s -triple=riscv64 -mattr=+txmacro -filetype=obj | llvm-objdump --mattr=+txmacro -d - | FileCheck %s --check-prefix=COMMON
+# [47:46]=Bd, [45:40]=operation, [39:32]=type.
+
+# COMMON: tx.macro.elemwise.vv.add.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x00,0x00,0x00]
+tx.macro.elemwise.vv.add.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.add.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x40,0x00,0x00]
+tx.macro.elemwise.sv.add.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.add.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x80,0x00,0x00]
+tx.macro.elemwise.iv.add.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.sub.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x01,0x00,0x00]
+tx.macro.elemwise.vv.sub.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.sub.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x41,0x00,0x00]
+tx.macro.elemwise.sv.sub.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.sub.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x81,0x00,0x00]
+tx.macro.elemwise.iv.sub.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.mul.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x02,0x00,0x00]
+tx.macro.elemwise.vv.mul.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.mul.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x42,0x00,0x00]
+tx.macro.elemwise.sv.mul.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.mul.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x82,0x00,0x00]
+tx.macro.elemwise.iv.mul.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.max.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x04,0x00,0x00]
+tx.macro.elemwise.vv.max.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.max.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x44,0x00,0x00]
+tx.macro.elemwise.sv.max.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.max.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x84,0x00,0x00]
+tx.macro.elemwise.iv.max.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.min.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x05,0x00,0x00]
+tx.macro.elemwise.vv.min.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.min.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x45,0x00,0x00]
+tx.macro.elemwise.sv.min.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.min.fp32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x00,0x85,0x00,0x00]
+tx.macro.elemwise.iv.min.fp32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.add.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x00,0x00,0x00]
+tx.macro.elemwise.vv.add.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.add.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x40,0x00,0x00]
+tx.macro.elemwise.sv.add.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.add.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x80,0x00,0x00]
+tx.macro.elemwise.iv.add.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.sub.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x01,0x00,0x00]
+tx.macro.elemwise.vv.sub.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.sub.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x41,0x00,0x00]
+tx.macro.elemwise.sv.sub.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.sub.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x81,0x00,0x00]
+tx.macro.elemwise.iv.sub.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.mul.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x02,0x00,0x00]
+tx.macro.elemwise.vv.mul.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.mul.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x42,0x00,0x00]
+tx.macro.elemwise.sv.mul.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.mul.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x82,0x00,0x00]
+tx.macro.elemwise.iv.mul.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.max.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x04,0x00,0x00]
+tx.macro.elemwise.vv.max.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.max.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x44,0x00,0x00]
+tx.macro.elemwise.sv.max.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.max.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x84,0x00,0x00]
+tx.macro.elemwise.iv.max.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.min.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x05,0x00,0x00]
+tx.macro.elemwise.vv.min.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.min.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x45,0x00,0x00]
+tx.macro.elemwise.sv.min.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.min.s32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x10,0x85,0x00,0x00]
+tx.macro.elemwise.iv.min.s32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.add.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x00,0x00,0x00]
+tx.macro.elemwise.vv.add.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.add.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x40,0x00,0x00]
+tx.macro.elemwise.sv.add.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.add.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x80,0x00,0x00]
+tx.macro.elemwise.iv.add.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.sub.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x01,0x00,0x00]
+tx.macro.elemwise.vv.sub.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.sub.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x41,0x00,0x00]
+tx.macro.elemwise.sv.sub.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.sub.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x81,0x00,0x00]
+tx.macro.elemwise.iv.sub.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.mul.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x02,0x00,0x00]
+tx.macro.elemwise.vv.mul.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.mul.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x42,0x00,0x00]
+tx.macro.elemwise.sv.mul.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.mul.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x82,0x00,0x00]
+tx.macro.elemwise.iv.mul.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.max.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x04,0x00,0x00]
+tx.macro.elemwise.vv.max.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.max.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x44,0x00,0x00]
+tx.macro.elemwise.sv.max.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.max.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x84,0x00,0x00]
+tx.macro.elemwise.iv.max.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.vv.min.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x05,0x00,0x00]
+tx.macro.elemwise.vv.min.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.sv.min.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x45,0x00,0x00]
+tx.macro.elemwise.sv.min.u32 a0, a1, a2, 7
+
+# COMMON: tx.macro.elemwise.iv.min.u32 a0, a1, a2, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0xc5,0x00,0x11,0x85,0x00,0x00]
+tx.macro.elemwise.iv.min.u32 a0, a1, a2, 7
+
