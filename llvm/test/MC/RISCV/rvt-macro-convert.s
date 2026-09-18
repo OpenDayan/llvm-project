@@ -1,0 +1,71 @@
+# RUN: llvm-mc %s -triple=riscv64 -mattr=+txmacro -show-encoding | FileCheck %s --check-prefixes=ASM,COMMON
+# RUN: llvm-mc %s -triple=riscv64 -mattr=+ztxmacro -show-encoding | FileCheck %s --check-prefixes=ASM,COMMON
+# RUN: llvm-mc %s -triple=riscv64 -mattr=+txmacro -filetype=obj | llvm-objdump --mattr=+txmacro -d - | FileCheck %s --check-prefix=COMMON
+# Type fields: [39:32]=source, [47:40]=destination.
+
+# COMMON: tx.macro.convert.fp32.s32 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x10,0x00,0x00,0x00]
+tx.macro.convert.fp32.s32 a0, a1, 7
+
+# COMMON: tx.macro.convert.s32.fp32 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x00,0x10,0x00,0x00]
+tx.macro.convert.s32.fp32 a0, a1, 7
+
+# COMMON: tx.macro.convert.s16.s32 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x10,0x12,0x00,0x00]
+tx.macro.convert.s16.s32 a0, a1, 7
+
+# COMMON: tx.macro.convert.bf16.fp32 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x00,0x02,0x00,0x00]
+tx.macro.convert.bf16.fp32 a0, a1, 7
+
+# COMMON: tx.macro.convert.fp32.bf16 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x02,0x00,0x00,0x00]
+tx.macro.convert.fp32.bf16 a0, a1, 7
+
+# COMMON: tx.macro.convert.s32.s16 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x12,0x10,0x00,0x00]
+tx.macro.convert.s32.s16 a0, a1, 7
+
+# COMMON: tx.macro.convert.mxfp8.bf16 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x02,0x06,0x00,0x00]
+tx.macro.convert.mxfp8.bf16 a0, a1, 7
+
+# COMMON: tx.macro.convert.s8.s16 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x12,0x14,0x00,0x00]
+tx.macro.convert.s8.s16 a0, a1, 7
+
+# COMMON: tx.macro.convert.s16.s8 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x14,0x12,0x00,0x00]
+tx.macro.convert.s16.s8 a0, a1, 7
+
+# COMMON: tx.macro.convert.bf16.s8 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x14,0x02,0x00,0x00]
+tx.macro.convert.bf16.s8 a0, a1, 7
+
+# COMMON: tx.macro.convert.bf16.u8 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x15,0x02,0x00,0x00]
+tx.macro.convert.bf16.u8 a0, a1, 7
+
+# COMMON: tx.macro.convert.e4m3.s4 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x18,0x04,0x00,0x00]
+tx.macro.convert.e4m3.s4 a0, a1, 7
+
+# COMMON: tx.macro.convert.e4m3.u4 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x19,0x04,0x00,0x00]
+tx.macro.convert.e4m3.u4 a0, a1, 7
+
+# COMMON: tx.macro.convert.fp32.e4m3 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x04,0x00,0x00,0x00]
+tx.macro.convert.fp32.e4m3 a0, a1, 7
+
+# COMMON: tx.macro.convert.fp32.fp16 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x03,0x00,0x00,0x00]
+tx.macro.convert.fp32.fp16 a0, a1, 7
+
+# COMMON: tx.macro.convert.s32.fp32 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x00,0x10,0x00,0x00]
+tx.macro.convert.s32.f32 a0, a1, 7
+# COMMON: tx.macro.convert.fp32.s32 a0, a1, {{(7|0x7)}}
+# ASM: encoding: [0x3f,0xf5,0x05,0x02,0x10,0x00,0x00,0x00]
+tx.macro.convert.fp32.s32.round a0, a1, 7

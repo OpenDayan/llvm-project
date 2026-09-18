@@ -277,7 +277,7 @@ class RVTMacroElemwiseVarBcast<bits<6> op_v, bits<8> dtype_v, string asmstr>
 }
 
 class RVTMacroConvert<bits<8> out_t, bits<8> in_t, string asmstr>
-  : RVTInst64<(outs GPR:$rd), (ins GPR:$rs1, uimm3:$group),
+  : RVTInst64<(outs), (ins GPR:$rd, GPR:$rs1, uimm3:$group),
              asmstr, "", [], InstFormatOther> {
   bits<5> rd;
   bits<5> rs1;
@@ -286,9 +286,10 @@ class RVTMacroConvert<bits<8> out_t, bits<8> in_t, string asmstr>
   let mayLoad = 1;
   let mayStore = 1;
   let Inst{63-48} = 0;
-  // npu-kernels convert: [47:40]=input type, [39:32]=output type.
-  let Inst{47-40} = in_t;
-  let Inst{39-32} = out_t;
+  // convert.<destination>.<source>: [47:40]=destination, [39:32]=source.
+  // rd supplies an address; this instruction does not define a GPR.
+  let Inst{47-40} = out_t;
+  let Inst{39-32} = in_t;
   let Inst{31-25} = 0b0000001;
   let Inst{24-20} = 0b00000;
   let Inst{19-15} = rs1;
@@ -1388,8 +1389,6 @@ def RVT_MACRO_ELEMWISE_SV_ADD_S32 : RVTMacroElemwiseBcast<0b01, 0b000000, 0x20,
   "tx.macro.elemwise.sv.add.s32 $rs1, $rs2, $group">;
 def RVT_MACRO_ELEMWISE_IV_ADD_S32 : RVTMacroElemwiseBcast<0b10, 0b000000, 0x20,
   "tx.macro.elemwise.iv.add.s32 $rs1, $rs2, $group">;
-def RVT_MACRO_CONVERT_S32_F32 : RVTMacroConvert<0x20, 0x00,
-  "tx.macro.convert.s32.f32 $rd, $rs1, $group">;
 def RVT_MACRO_REDUCE_ADD_S32 : RVTMacroReduce<0, 0b000000, 0x20,
   "tx.macro.reduce.add.s32 $rd, $rs1, $group">;
 
@@ -1411,14 +1410,37 @@ def RVT_MACRO_ELEMWISE_MAX_FP32 : RVTMacroElemwiseVarBcast<0b000100, 0x00,
 def RVT_MACRO_ELEMWISE_MIN_FP32 : RVTMacroElemwiseVarBcast<0b000101, 0x00,
   "tx.macro.elemwise.min.fp32 $rd, $rs1, $rs2, $group, $broadcast">;
 
-def RVT_MACRO_CONVERT_FP32_S32 : RVTMacroConvert<0x00, 0x20,
+// Conversion suffixes are destination.source. MXFP8 uses E4M3.
+def RVT_MACRO_CONVERT_FP32_S32 : RVTMacroConvert<0x00, 0x10,
   "tx.macro.convert.fp32.s32 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_S32_FP32 : RVTMacroConvert<0x10, 0x00,
+  "tx.macro.convert.s32.fp32 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_S16_S32 : RVTMacroConvert<0x12, 0x10,
+  "tx.macro.convert.s16.s32 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_BF16_FP32 : RVTMacroConvert<0x02, 0x00,
+  "tx.macro.convert.bf16.fp32 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_FP32_BF16 : RVTMacroConvert<0x00, 0x02,
+  "tx.macro.convert.fp32.bf16 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_S32_S16 : RVTMacroConvert<0x10, 0x12,
+  "tx.macro.convert.s32.s16 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_MXFP8_BF16 : RVTMacroConvert<0x06, 0x02,
+  "tx.macro.convert.mxfp8.bf16 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_S8_S16 : RVTMacroConvert<0x14, 0x12,
+  "tx.macro.convert.s8.s16 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_S16_S8 : RVTMacroConvert<0x12, 0x14,
+  "tx.macro.convert.s16.s8 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_BF16_S8 : RVTMacroConvert<0x02, 0x14,
+  "tx.macro.convert.bf16.s8 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_BF16_U8 : RVTMacroConvert<0x02, 0x15,
+  "tx.macro.convert.bf16.u8 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_E4M3_S4 : RVTMacroConvert<0x04, 0x18,
+  "tx.macro.convert.e4m3.s4 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_E4M3_U4 : RVTMacroConvert<0x04, 0x19,
+  "tx.macro.convert.e4m3.u4 $rd, $rs1, $group">;
 def RVT_MACRO_CONVERT_FP32_E4M3 : RVTMacroConvert<0x00, 0x04,
   "tx.macro.convert.fp32.e4m3 $rd, $rs1, $group">;
 def RVT_MACRO_CONVERT_FP32_FP16 : RVTMacroConvert<0x00, 0x03,
   "tx.macro.convert.fp32.fp16 $rd, $rs1, $group">;
-def RVT_MACRO_CONVERT_FP32_BF16 : RVTMacroConvert<0x00, 0x02,
-  "tx.macro.convert.fp32.bf16 $rd, $rs1, $group">;
 
 def RVT_MACRO_REDUCE_MAX_FP32 : RVTMacroReduce3P<0b000100, 0x00,
   "tx.macro.reduce.max.fp32 $rd, $rs1, $rs2, $group, $index">;
@@ -1441,6 +1463,9 @@ def RVT_MACRO_SFU_RECIP_FP32 : RVTMacroSFU<0x05, "tx.macro.sfu.recip.fp32 $rd, $
 // Alias-only mnemonics that intentionally share encoding with canonical forms.
 // Keep parser compatibility without introducing duplicate decode table entries.
 let Predicates = [HasTXMacroOrZTXMacro] in {
+// Historical spelling of fp32.
+def : InstAlias<"tx.macro.convert.s32.f32 $rd, $rs1, $group",
+                (RVT_MACRO_CONVERT_S32_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
 def : InstAlias<"tx.macro.sfu.exp $rd, $rs1, $group",
                 (RVT_MACRO_SFU_EXP2_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
 def : InstAlias<"tx.macro.convert.fp32.s32.round $rd, $rs1, $group",

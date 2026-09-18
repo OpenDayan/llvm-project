@@ -666,6 +666,62 @@ static __attribute__((always_inline)) inline void __tx_macro_elemwise_min_fp32(l
   __builtin_riscv_tx_macro_elemwise_min_fp32(rd, rs1, rs2, GROUP, BROADCAST);
 }
 
+// Conversion suffixes are destination_source. MXFP8 uses E4M3.
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_s32_fp32(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_s32_fp32(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_s16_s32(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_s16_s32(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_bf16_fp32(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_bf16_fp32(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_s32_s16(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_s32_s16(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_mxfp8_bf16(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_mxfp8_bf16(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_s8_s16(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_s8_s16(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_s16_s8(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_s16_s8(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_bf16_s8(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_bf16_s8(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_bf16_u8(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_bf16_u8(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_e4m3_s4(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_e4m3_s4(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_convert_e4m3_u4(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_e4m3_u4(rd, rs1, GROUP);
+}
+
 template <long GROUP>
 static __attribute__((always_inline)) inline void __tx_macro_convert_s32_f32(long rd, long rs1) {
   __builtin_riscv_tx_macro_convert_s32_f32(rd, rs1, GROUP);

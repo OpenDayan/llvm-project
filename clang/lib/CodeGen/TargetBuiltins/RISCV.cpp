@@ -1307,6 +1307,28 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 3) | (1 << 4);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_elemwise_min_fp32)
     ICEArguments |= (1 << 3) | (1 << 4);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s32_fp32)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s16_s32)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_bf16_fp32)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s32_s16)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_mxfp8_bf16)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s8_s16)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s16_s8)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_bf16_s8)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_bf16_u8)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_s4)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_u4)
+    ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s32_f32)
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp32_s32_round)
@@ -2269,6 +2291,105 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         FTy, "tx.macro.elemwise.min.fp32 $0, $1, $2, $3, $4", "r,r,r,i,i",
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3], Ops[4]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_s32_fp32: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.s32.fp32 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_s16_s32: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.s16.s32 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_bf16_fp32: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.bf16.fp32 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_s32_s16: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.s32.s16 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_mxfp8_bf16: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.mxfp8.bf16 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_s8_s16: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.s8.s16 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_s16_s8: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.s16.s8 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_bf16_s8: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.bf16.s8 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_bf16_u8: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.bf16.u8 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_s4: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.e4m3.s4 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
+  }
+  case RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_u4: {
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
+        false);
+    llvm::InlineAsm *IA = llvm::InlineAsm::get(
+        FTy, "tx.macro.convert.e4m3.u4 $0, $1, $2", "r,r,i",
+        /*hasSideEffects=*/true);
+    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
   case RISCV::BI__builtin_riscv_tx_macro_convert_s32_f32: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(

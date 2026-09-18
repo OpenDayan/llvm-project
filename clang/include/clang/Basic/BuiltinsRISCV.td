@@ -340,6 +340,17 @@ def tx_macro_elemwise_mul_fp32 : RISCVBuiltin<"void(long int, long int, long int
 def tx_macro_elemwise_max_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
 def tx_macro_elemwise_min_fp32 : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int, _Constant unsigned int)">;
 
+def tx_macro_convert_s32_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_s16_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_bf16_fp32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_s32_s16 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_mxfp8_bf16 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_s8_s16 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_s16_s8 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_bf16_s8 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_bf16_u8 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_e4m3_s4 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
+def tx_macro_convert_e4m3_u4 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
 def tx_macro_convert_s32_f32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
 def tx_macro_convert_fp32_s32_round : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
 def tx_macro_convert_fp32_s32 : RISCVBuiltin<"void(long int, long int, _Constant unsigned int)">;
