@@ -67,15 +67,15 @@ void convert_bf16_u8(long dst, long src) {
   __builtin_riscv_tx_macro_convert_bf16_u8(dst, src, 7);
 }
 
-// CHECK-LABEL: @convert_e4m3_s4(
-// CHECK: call void asm sideeffect "tx.macro.convert.e4m3.s4 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 7)
-void convert_e4m3_s4(long dst, long src) {
-  __builtin_riscv_tx_macro_convert_e4m3_s4(dst, src, 7);
+// CHECK-LABEL: @convert_fp8_s4(
+// CHECK: call void asm sideeffect "tx.macro.convert.fp8.s4 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 7)
+void convert_fp8_s4(long dst, long src) {
+  __builtin_riscv_tx_macro_convert_fp8_s4(dst, src, 7);
 }
 
-// CHECK-LABEL: @convert_e4m3_u4(
-// CHECK: call void asm sideeffect "tx.macro.convert.e4m3.u4 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 7)
-void convert_e4m3_u4(long dst, long src) {
-  __builtin_riscv_tx_macro_convert_e4m3_u4(dst, src, 7);
+// CHECK-LABEL: @convert_fp8_u4(
+// CHECK: call void asm sideeffect "tx.macro.convert.fp8.u4 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 7)
+void convert_fp8_u4(long dst, long src) {
+  __builtin_riscv_tx_macro_convert_fp8_u4(dst, src, 7);
 }
 

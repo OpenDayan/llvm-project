@@ -1143,8 +1143,10 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 0);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_mat_tcsr_write)
     ICEArguments |= (1 << 1);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_s_iter_getdim)
+    ICEArguments |= (1 << 0) | (1 << 1);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_mat_setptr)
-    ICEArguments |= (1 << 3);
+    ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_mat_mm)
     ICEArguments |= (1 << 3);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_mat_mma)
@@ -1157,16 +1159,6 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 0);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_tcsr_write)
     ICEArguments |= (1 << 1);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_v_load)
-    ICEArguments |= (1 << 1) | (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_s_load)
-    ICEArguments |= (1 << 1) | (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_const_load)
-    ICEArguments |= (1 << 1);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_v_store)
-    ICEArguments |= (1 << 1) | (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_s_store)
-    ICEArguments |= (1 << 1) | (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_vec_vv_int32_bitwise)
     ICEArguments |= (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3);
   switch (BuiltinID) {
@@ -1223,7 +1215,6 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   case RISCV::BI__builtin_riscv_tx_vec_s_int32_add:
   case RISCV::BI__builtin_riscv_tx_vec_s_int32_sub:
   case RISCV::BI__builtin_riscv_tx_vec_s_int32_mul:
-  case RISCV::BI__builtin_riscv_tx_vec_s_iter_getdim:
   case RISCV::BI__builtin_riscv_tx_vec_s_bitwise_beq:
   case RISCV::BI__builtin_riscv_tx_vec_s_bitwise_bne:
   case RISCV::BI__builtin_riscv_tx_vec_s_int32_blt:
@@ -1281,6 +1272,20 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 0) | (1 << 1);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_base_tcsr_write)
     ICEArguments |= (1 << 1) | (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_shuffle_compress)
+    ICEArguments |= (1 << 3);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_sfu_log2)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_sfu_exp2)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_sfu_sin)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_sfu_cos)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_sfu_rsqrt)
+    ICEArguments |= (1 << 2);
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_sfu_recip)
+    ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_tcsr_read)
     ICEArguments |= (1 << 0);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_tcsr_write)
@@ -1393,9 +1398,9 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_bf16_u8)
     ICEArguments |= (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_s4)
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp8_s4)
     ICEArguments |= (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_u4)
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp8_u4)
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_s32_f32)
     ICEArguments |= (1 << 2);
@@ -1403,7 +1408,7 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp32_s32)
     ICEArguments |= (1 << 2);
-  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp32_e4m3)
+  if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp32_fp8)
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_convert_fp32_fp16)
     ICEArguments |= (1 << 2);
@@ -1432,9 +1437,9 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_reduce_add_fp32)
     ICEArguments |= (1 << 2);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_reduce_max_s32)
-    ICEArguments |= (1 << 2) | (1 << 3);
+    ICEArguments |= (1 << 3) | (1 << 4);
   if (BuiltinID == RISCV::BI__builtin_riscv_tx_macro_reduce_min_s32)
-    ICEArguments |= (1 << 2) | (1 << 3);
+    ICEArguments |= (1 << 3) | (1 << 4);
   for (unsigned i = 0, e = E->getNumArgs(); i != e; i++) {
     // Handle aggregate argument, namely RVV tuple types in segment load/store
     if (hasAggregateEvaluationKind(E->getArg(i)->getType())) {
@@ -1844,18 +1849,8 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         FTy, "tx.mat.tcsr.write $0, $1", "r,i", /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1]});
   }
-  case RISCV::BI__builtin_riscv_tx_mat_setptr: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy,
-        {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-         Ops[3]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        // Match npu-kernels MAT format: tx.mat.setptr rd, rs1, rs2, group.
-        FTy, "tx.mat.setptr $0, $1, $2, $3", "r,r,r,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3]});
-  }
+  case RISCV::BI__builtin_riscv_tx_mat_setptr:
+    return EmitRVTInlineAsm("tx.mat.setptr $0, $1, $2", "r,r,i");
   case RISCV::BI__builtin_riscv_tx_mat_mm: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy,
@@ -1982,45 +1977,11 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         FTy, "tx.sb.get.any $0", "=r", /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {});
   }
-  case RISCV::BI__builtin_riscv_tx_vec_v_load: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.vec.v.load $0, $1, $2", "r,i,i", /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
-  case RISCV::BI__builtin_riscv_tx_vec_s_load: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.vec.s.load $0, $1, $2", "r,i,i", /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
-  case RISCV::BI__builtin_riscv_tx_vec_const_load: {
-    llvm::FunctionType *FTy =
-        llvm::FunctionType::get(VoidTy, {Ops[0]->getType(), Ops[1]->getType()}, false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.vec.const.load $0, $1", "r,i", /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1]});
-  }
-  case RISCV::BI__builtin_riscv_tx_vec_v_store: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.vec.v.store $0, $1, $2", "r,i,i", /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
-  case RISCV::BI__builtin_riscv_tx_vec_s_store: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.vec.s.store $0, $1, $2", "r,i,i", /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
-  }
+
+
+
+
+
   case RISCV::BI__builtin_riscv_tx_vec_vv_int32_bitwise: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy,
@@ -2111,7 +2072,7 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   case RISCV::BI__builtin_riscv_tx_vec_s_int32_mul:
     return EmitRVTInlineAsm("tx.vec.s.int32.mul $0, $1, $2", "i,i,i");
   case RISCV::BI__builtin_riscv_tx_vec_s_iter_getdim:
-    return EmitRVTInlineAsm("tx.vec.s.iter.getdim $0, $1, $2", "i,i,i");
+    return EmitRVTInlineAsm("tx.vec.s.iter.getdim $0, $1", "i,i");
   case RISCV::BI__builtin_riscv_tx_vec_s_iter_gets:
     return EmitRVTInlineAsm("tx.vec.s.iter.gets $0, $1, $2, $3", "i,i,i,i");
   case RISCV::BI__builtin_riscv_tx_vec_s_iter_getv:
@@ -2466,21 +2427,21 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
-  case RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_s4: {
+  case RISCV::BI__builtin_riscv_tx_macro_convert_fp8_s4: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
         false);
     llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.convert.e4m3.s4 $0, $1, $2", "r,r,i",
+        FTy, "tx.macro.convert.fp8.s4 $0, $1, $2", "r,r,i",
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
-  case RISCV::BI__builtin_riscv_tx_macro_convert_e4m3_u4: {
+  case RISCV::BI__builtin_riscv_tx_macro_convert_fp8_u4: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
         false);
     llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.convert.e4m3.u4 $0, $1, $2", "r,r,i",
+        FTy, "tx.macro.convert.fp8.u4 $0, $1, $2", "r,r,i",
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
@@ -2511,12 +2472,12 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
-  case RISCV::BI__builtin_riscv_tx_macro_convert_fp32_e4m3: {
+  case RISCV::BI__builtin_riscv_tx_macro_convert_fp32_fp8: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
         false);
     llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.convert.fp32.e4m3 $0, $1, $2", "r,r,i",
+        FTy, "tx.macro.convert.fp32.fp8 $0, $1, $2", "r,r,i",
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
@@ -2600,6 +2561,21 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
+  case RISCV::BI__builtin_riscv_tx_macro_shuffle_compress:
+    return EmitRVTInlineAsm("tx.macro.shuffle.compress $0, $1, $2, $3",
+                            "r,r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_sfu_log2:
+    return EmitRVTInlineAsm("tx.macro.sfu.log2 $0, $1, $2", "r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_sfu_exp2:
+    return EmitRVTInlineAsm("tx.macro.sfu.exp2 $0, $1, $2", "r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_sfu_sin:
+    return EmitRVTInlineAsm("tx.macro.sfu.sin $0, $1, $2", "r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_sfu_cos:
+    return EmitRVTInlineAsm("tx.macro.sfu.cos $0, $1, $2", "r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_sfu_rsqrt:
+    return EmitRVTInlineAsm("tx.macro.sfu.rsqrt $0, $1, $2", "r,r,i");
+  case RISCV::BI__builtin_riscv_tx_macro_sfu_recip:
+    return EmitRVTInlineAsm("tx.macro.sfu.recip $0, $1, $2", "r,r,i");
   case RISCV::BI__builtin_riscv_tx_macro_reduce_add_s32: {
     llvm::FunctionType *FTy = llvm::FunctionType::get(
         VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType()},
@@ -2638,26 +2614,12 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
         /*hasSideEffects=*/true);
     return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2]});
   }
-  case RISCV::BI__builtin_riscv_tx_macro_reduce_max_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.reduce.max.s32 $0, $1, $2, $3", "r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3]});
-  }
-  case RISCV::BI__builtin_riscv_tx_macro_reduce_min_s32: {
-    llvm::FunctionType *FTy = llvm::FunctionType::get(
-        VoidTy, {Ops[0]->getType(), Ops[1]->getType(), Ops[2]->getType(),
-                 Ops[3]->getType()},
-        false);
-    llvm::InlineAsm *IA = llvm::InlineAsm::get(
-        FTy, "tx.macro.reduce.min.s32 $0, $1, $2, $3", "r,r,i,i",
-        /*hasSideEffects=*/true);
-    return Builder.CreateCall(IA, {Ops[0], Ops[1], Ops[2], Ops[3]});
-  }
+  case RISCV::BI__builtin_riscv_tx_macro_reduce_max_s32:
+    return EmitRVTInlineAsm("tx.macro.reduce.max.s32 $0, $1, $2, $3, $4",
+                            "r,r,r,i,i");
+  case RISCV::BI__builtin_riscv_tx_macro_reduce_min_s32:
+    return EmitRVTInlineAsm("tx.macro.reduce.min.s32 $0, $1, $2, $3, $4",
+                            "r,r,r,i,i");
 
   // XCValu
   case RISCV::BI__builtin_riscv_cv_alu_addN:

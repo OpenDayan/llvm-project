@@ -10,6 +10,7 @@ def OPC_RVT64 : RISCVOpcode<"OPC_RVT64", 0b0111111>;
 // Local immediate operands for TCSR address fields.
 def rvt_uimm10 : RISCVUImmLeafOp<10>;
 def rvt_lsu_uimm8 : RISCVUImmLeafOp<8>;
+def rvt_simm8 : RISCVSImmLeafOp<8>;
 
 // Feature gates.
 //
@@ -156,15 +157,15 @@ class RVTLSUTCSRWrite<string asmstr>
 }
 
 class RVTMAT<bits<3> funct3_v, bits<2> mode_high, bits<1> acc_v, string asmstr>
-  : RVInst<(outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2, uimm3:$group),
+  : RVInst<(outs), (ins GPR:$rd, GPR:$rs1, GPR:$rs2, uimm3:$group),
            asmstr, "", [], InstFormatOther> {
   bits<5> rd;
   bits<5> rs1;
   bits<5> rs2;
   bits<3> group;
   let hasSideEffects = 1;
-  let mayLoad = 0;
-  let mayStore = 0;
+  let mayLoad = 1;
+  let mayStore = 1;
   // Align with npu-kernels MAT encoding:
   //   encoding = (MAT_FUNCT << 29) | (mode << 12) | OPC_RVT32 | ((group & 7) << 25)
   // Here mode is split as mode_high[14:13] + acc_v[12]:
@@ -181,9 +182,8 @@ class RVTMAT<bits<3> funct3_v, bits<2> mode_high, bits<1> acc_v, string asmstr>
 }
 
 class RVTMATSetPtr<string asmstr>
-  : RVInst<(outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2, uimm3:$group),
+  : RVInst<(outs), (ins GPR:$rs1, GPR:$rs2, uimm3:$group),
            asmstr, "", [], InstFormatOther> {
-  bits<5> rd;
   bits<5> rs1;
   bits<5> rs2;
   bits<3> group;
@@ -195,9 +195,9 @@ class RVTMATSetPtr<string asmstr>
   let Inst{27-25} = group;
   let Inst{24-20} = rs2;
   let Inst{19-15} = rs1;
-  // setptr mode is 0b100 per npu-kernels gen_npu_instruction_32.h.
+  // The specification reserves rd and fixes mode to 0b100.
   let Inst{14-12} = 0b100;
-  let Inst{11-7} = rd;
+  let Inst{11-7} = 0;
   let Inst{6-0} = OPC_RVT32.Value;
 }
 
@@ -264,7 +264,7 @@ class RVTMacroConvert<bits<8> out_t, bits<8> in_t, string asmstr>
 }
 
 class RVTMacroSFU<bits<8> op_v, string asmstr>
-  : RVTInst64<(outs GPR:$rd), (ins GPR:$rs1, uimm3:$group),
+  : RVTInst64<(outs), (ins GPR:$rd, GPR:$rs1, uimm3:$group),
              asmstr, "", [], InstFormatOther> {
   bits<5> rd;
   bits<5> rs1;
@@ -285,7 +285,7 @@ class RVTMacroSFU<bits<8> op_v, string asmstr>
 }
 
 class RVTMacroReduce<bits<1> index_v, bits<6> op_v, bits<8> dtype_v, string asmstr>
-  : RVTInst64<(outs GPR:$rd), (ins GPR:$rs1, uimm3:$group),
+  : RVTInst64<(outs), (ins GPR:$rd, GPR:$rs1, uimm3:$group),
              asmstr, "", [], InstFormatOther> {
   bits<5> rd;
   bits<5> rs1;
@@ -307,7 +307,7 @@ class RVTMacroReduce<bits<1> index_v, bits<6> op_v, bits<8> dtype_v, string asms
 }
 
 class RVTMacroReduce3P<bits<6> op_v, bits<8> dtype_v, string asmstr>
-  : RVTInst64<(outs GPR:$rd), (ins GPR:$rs1, GPR:$rs2, uimm3:$group, uimm1:$index),
+  : RVTInst64<(outs), (ins GPR:$rd, GPR:$rs1, GPR:$rs2, uimm3:$group, uimm1:$index),
              asmstr, "", [], InstFormatOther> {
   bits<5> rd;
   bits<5> rs1;
@@ -323,6 +323,26 @@ class RVTMacroReduce3P<bits<6> op_v, bits<8> dtype_v, string asmstr>
   let Inst{45-40} = op_v;
   let Inst{39-32} = dtype_v;
   let Inst{31-25} = 0b0000011;
+  let Inst{24-20} = rs2;
+  let Inst{19-15} = rs1;
+  let Inst{14-12} = group;
+  let Inst{11-7} = rd;
+  let Inst{6-0} = OPC_RVT64.Value;
+}
+
+class RVTMacroShuffleCompress<string asmstr>
+  : RVTInst64<(outs), (ins GPR:$rd, GPR:$rs1, GPR:$rs2, uimm3:$group),
+              asmstr, "", [], InstFormatOther> {
+  bits<5> rd;
+  bits<5> rs1;
+  bits<5> rs2;
+  bits<3> group;
+  let hasSideEffects = 1;
+  let mayLoad = 1;
+  let mayStore = 1;
+  let Inst{63-36} = 0;
+  let Inst{35-32} = 1; // Compress.
+  let Inst{31-25} = 0b0000101;
   let Inst{24-20} = rs2;
   let Inst{19-15} = rs1;
   let Inst{14-12} = group;
@@ -370,7 +390,7 @@ def RVT_MAT_MMA    : RVTMAT<0b001, 0b00, 0b1, "tx.mat.mma $rd, $rs1, $rs2, $grou
 // conv2d/conv2da use mode=0b010/0b011 with the same MAT_FUNCT family.
 def RVT_MAT_CONV2D : RVTMAT<0b001, 0b01, 0b0, "tx.mat.conv2d $rd, $rs1, $rs2, $group">;
 def RVT_MAT_CONV2DA: RVTMAT<0b001, 0b01, 0b1, "tx.mat.conv2da $rd, $rs1, $rs2, $group">;
-def RVT_MAT_SETPTR : RVTMATSetPtr<"tx.mat.setptr $rd, $rs1, $rs2, $group">;
+def RVT_MAT_SETPTR : RVTMATSetPtr<"tx.mat.setptr $rs1, $rs2, $group">;
 } // Predicates = [HasTXMatOrZTXMat]
 
 class RVTMatTCSRRead<string asmstr>
@@ -510,119 +530,6 @@ class RVTSBGetAny<string asmstr>
   let Inst{11-7} = rd;
   let Inst{6-0} = OPC_RVT32.Value;
 }
-class RVTVecVLoad<string asmstr>
-  : RVInst<(outs), (ins GPR:$rs2, uimm1:$vb, uimm2:$sel),
-           asmstr, "", [], InstFormatOther> {
-  bits<5> rs2;
-  bits<1> vb;
-  bits<2> sel;
-  let hasSideEffects = 1;
-  let mayLoad = 1;
-  let mayStore = 0;
-  let isAsmParserOnly = 1;
-  let Inst{31-26} = 0b010000;
-  let Inst{25} = vb;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = 0b00000;
-  let Inst{14-11} = 0;
-  let Inst{10-9} = sel;
-  let Inst{8-7} = 0;
-  let Inst{6-0} = OPC_RVT32.Value;
-}
-
-class RVTVecSLoad<string asmstr>
-  : RVInst<(outs), (ins GPR:$rs2, uimm1:$vb, uimm2:$sel),
-           asmstr, "", [], InstFormatOther> {
-  bits<5> rs2;
-  bits<1> vb;
-  bits<2> sel;
-  let hasSideEffects = 1;
-  let mayLoad = 1;
-  let mayStore = 0;
-  let isAsmParserOnly = 1;
-  let Inst{31-26} = 0b010000;
-  let Inst{25} = vb;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = 0b00001;
-  let Inst{14-11} = 0;
-  let Inst{10-9} = sel;
-  let Inst{8-7} = 0;
-  let Inst{6-0} = OPC_RVT32.Value;
-}
-
-class RVTVecConstLoad<string asmstr>
-  : RVInst<(outs), (ins GPR:$rs2, uimm1:$vb),
-           asmstr, "", [], InstFormatOther> {
-  bits<5> rs2;
-  bits<1> vb;
-  let hasSideEffects = 1;
-  let mayLoad = 1;
-  let mayStore = 0;
-  let isAsmParserOnly = 1;
-  let Inst{31-26} = 0b010000;
-  let Inst{25} = vb;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = 0b00001;
-  let Inst{14-7} = 0;
-  let Inst{6-0} = OPC_RVT32.Value;
-}
-
-class RVTVecVStore<string asmstr>
-  : RVInst<(outs), (ins GPR:$rs2, uimm5:$vrs2, uimm2:$sel),
-           asmstr, "", [], InstFormatOther> {
-  bits<5> rs2;
-  bits<5> vrs2;
-  bits<2> sel;
-  let hasSideEffects = 1;
-  let mayLoad = 0;
-  let mayStore = 1;
-  let isAsmParserOnly = 1;
-  let Inst{31-25} = 0b0100010;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = vrs2;
-  let Inst{14-11} = 0;
-  let Inst{10-9} = sel;
-  let Inst{8-7} = 0b00;
-  let Inst{6-0} = OPC_RVT32.Value;
-}
-
-class RVTVecSStore<string asmstr>
-  : RVInst<(outs), (ins GPR:$rs2, uimm5:$vrs2, uimm2:$sel),
-           asmstr, "", [], InstFormatOther> {
-  bits<5> rs2;
-  bits<5> vrs2;
-  bits<2> sel;
-  let hasSideEffects = 1;
-  let mayLoad = 0;
-  let mayStore = 1;
-  let isAsmParserOnly = 1;
-  let Inst{31-25} = 0b0100010;
-  let Inst{24-20} = rs2;
-  let Inst{19-15} = vrs2;
-  let Inst{14-11} = 0;
-  let Inst{10-9} = sel;
-  let Inst{8-7} = 0b10;
-  let Inst{6-0} = OPC_RVT32.Value;
-}
-
-class RVTVecVVInt32X<string asmstr>
-  : RVInst<(outs), (ins uimm1:$vb, uimm5:$vrs1, uimm5:$vrs2),
-           asmstr, "", [], InstFormatOther> {
-  bits<1> vb;
-  bits<5> vrs1;
-  bits<5> vrs2;
-  let hasSideEffects = 1;
-  let mayLoad = 0;
-  let mayStore = 0;
-  let Inst{31-26} = 0b100001;
-  let Inst{25} = vb;
-  let Inst{24-20} = 0;
-  let Inst{19-15} = vrs1;
-  let Inst{14-12} = 0b000;
-  let Inst{11-7} = vrs2;
-  let Inst{6-0} = OPC_RVT32.Value;
-}
-
 class RVTVecVVInt32Bitwise<string asmstr>
   : RVInst<(outs), (ins uimm1:$vb, uimm5:$vrs1, uimm5:$vrs2, uimm4:$lut),
            asmstr, "", [], InstFormatOther> {
@@ -796,6 +703,24 @@ class RVTVecSInt32Like<bits<2> op_hi, bits<2> op_lo, string asmstr>
   let Inst{6-0} = OPC_RVT32.Value;
 }
 
+class RVTVecSGetDim<string asmstr>
+  : RVInst<(outs), (ins uimm3:$sd, uimm2:$dim),
+           asmstr, "", [], InstFormatOther> {
+  bits<3> sd;
+  bits<2> dim;
+  let hasSideEffects = 1;
+  let mayLoad = 0;
+  let mayStore = 0;
+  let Inst{31-26} = 0b111110;
+  let Inst{25-23} = sd;
+  let Inst{22-15} = 0b00000001;
+  let Inst{14-12} = 0; // Reserved s2.
+  let Inst{11-10} = 0b11;
+  let Inst{9} = 0; // Reserved s1[2].
+  let Inst{8-7} = dim;
+  let Inst{6-0} = OPC_RVT32.Value;
+}
+
 class RVTVecSIter<bits<2> op_v, string asmstr>
   : RVInst<(outs), (ins uimm3:$sd, uimm3:$s1, uimm3:$s2, uimm2:$sel),
            asmstr, "", [], InstFormatOther> {
@@ -817,12 +742,12 @@ class RVTVecSIter<bits<2> op_v, string asmstr>
 }
 
 class RVTVecSBitwise<string asmstr>
-  : RVInst<(outs), (ins uimm3:$sd, uimm3:$s1, uimm3:$s2, uimm2:$lut),
+  : RVInst<(outs), (ins uimm3:$sd, uimm3:$s1, uimm3:$s2, uimm4:$lut),
            asmstr, "", [], InstFormatOther> {
   bits<3> sd;
   bits<3> s1;
   bits<3> s2;
-  bits<2> lut;
+  bits<4> lut;
   let hasSideEffects = 1;
   let mayLoad = 0;
   let mayStore = 0;
@@ -830,21 +755,21 @@ class RVTVecSBitwise<string asmstr>
   let Inst{25-23} = sd;
   let Inst{22-18} = 0b00000;
   let Inst{17} = 0b1;
-  let Inst{16-15} = lut;
+  let Inst{16-15} = lut{3-2};
   let Inst{14-12} = s2;
-  let Inst{11-10} = lut;
+  let Inst{11-10} = lut{1-0};
   let Inst{9-7} = s1;
   let Inst{6-0} = OPC_RVT32.Value;
 }
 
 class RVTVecSBranch<bits<2> op_v, string asmstr>
-  : RVInst<(outs), (ins uimm8:$target, uimm3:$s1, uimm3:$s2),
+  : RVInst<(outs), (ins rvt_simm8:$target, uimm3:$s1, uimm3:$s2),
            asmstr, "", [], InstFormatOther> {
   bits<8> target;
   bits<3> s1;
   bits<3> s2;
   let hasSideEffects = 1;
-  let isBranch = 1;
+  // This branches within a queued VEC block, not the host instruction stream.
   let mayLoad = 0;
   let mayStore = 0;
   let Inst{31-26} = 0b111111;
@@ -1152,11 +1077,6 @@ def RVT_VEC_TCSR_READ  : RVTVecTCSRRead<"tx.vec.tcsr.read $rd, $tcsr_addr">;
 def RVT_VEC_TCSR_WRITE : RVTVecTCSRWrite<"tx.vec.tcsr.write $src, $tcsr_addr">;
 def RVT_VEC_SB_PRODUCE : RVTSBProduce<0x003, "tx.vec.sb.produce $src">;
 def RVT_VEC_SB_BAR     : RVTSBBar<0x003, "tx.vec.sb.bar $rd">;
-def RVT_VEC_V_LOAD     : RVTVecVLoad<"tx.vec.v.load $rs2, $vb, $sel">;
-def RVT_VEC_S_LOAD     : RVTVecSLoad<"tx.vec.s.load $rs2, $vb, $sel">;
-def RVT_VEC_CONST_LOAD : RVTVecConstLoad<"tx.vec.const.load $rs2, $vb">;
-def RVT_VEC_V_STORE    : RVTVecVStore<"tx.vec.v.store $rs2, $vrs2, $sel">;
-def RVT_VEC_S_STORE    : RVTVecSStore<"tx.vec.s.store $rs2, $vrs2, $sel">;
 def RVT_VEC_VV_INT32_BITWISE
   : RVTVecVVInt32Bitwise<"tx.vec.vv.int32.bitwise $vb, $vrs1, $vrs2, $lut">;
 def RVT_VEC_VV_INT32_ROL : RVTVecVVInt32<0b00000000,
@@ -1241,8 +1161,8 @@ def RVT_VEC_S_INT32_SUB : RVTVecSInt32Like<0b01, 0b01,
   "tx.vec.s.int32.sub $sd, $s1, $s2">;
 def RVT_VEC_S_INT32_MUL : RVTVecSInt32Like<0b01, 0b10,
   "tx.vec.s.int32.mul $sd, $s1, $s2">;
-def RVT_VEC_S_ITER_GETDIM : RVTVecSInt32Like<0b01, 0b11,
-  "tx.vec.s.iter.getdim $sd, $s1, $s2">;
+def RVT_VEC_S_ITER_GETDIM : RVTVecSGetDim<
+  "tx.vec.s.iter.getdim $sd, $dim">;
 def RVT_VEC_S_ITER_GETS : RVTVecSIter<0b10,
   "tx.vec.s.iter.gets $sd, $s1, $s2, $sel">;
 def RVT_VEC_S_ITER_GETV : RVTVecSIter<0b11,
@@ -1382,10 +1302,13 @@ defm RVT_MACRO_ELEMWISE_MAX_U32 :
 defm RVT_MACRO_ELEMWISE_MIN_U32 :
   RVTMacroElemwiseForms<5, 0x11, "min.u32">;
 
-def RVT_MACRO_REDUCE_ADD_S32 : RVTMacroReduce<0, 0b000000, 0x20,
+def RVT_MACRO_SHUFFLE_COMPRESS : RVTMacroShuffleCompress<
+  "tx.macro.shuffle.compress $rd, $rs1, $rs2, $group">;
+
+def RVT_MACRO_REDUCE_ADD_S32 : RVTMacroReduce<0, 0b000000, 0x10,
   "tx.macro.reduce.add.s32 $rd, $rs1, $group">;
 
-// Conversion suffixes are destination.source. MXFP8 uses E4M3.
+// Conversion suffixes are destination.source. FP8 and MXFP8 use E4M3.
 def RVT_MACRO_CONVERT_FP32_S32 : RVTMacroConvert<0x00, 0x10,
   "tx.macro.convert.fp32.s32 $rd, $rs1, $group">;
 def RVT_MACRO_CONVERT_S32_FP32 : RVTMacroConvert<0x10, 0x00,
@@ -1408,12 +1331,12 @@ def RVT_MACRO_CONVERT_BF16_S8 : RVTMacroConvert<0x02, 0x14,
   "tx.macro.convert.bf16.s8 $rd, $rs1, $group">;
 def RVT_MACRO_CONVERT_BF16_U8 : RVTMacroConvert<0x02, 0x15,
   "tx.macro.convert.bf16.u8 $rd, $rs1, $group">;
-def RVT_MACRO_CONVERT_E4M3_S4 : RVTMacroConvert<0x04, 0x18,
-  "tx.macro.convert.e4m3.s4 $rd, $rs1, $group">;
-def RVT_MACRO_CONVERT_E4M3_U4 : RVTMacroConvert<0x04, 0x19,
-  "tx.macro.convert.e4m3.u4 $rd, $rs1, $group">;
-def RVT_MACRO_CONVERT_FP32_E4M3 : RVTMacroConvert<0x00, 0x04,
-  "tx.macro.convert.fp32.e4m3 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_FP8_S4 : RVTMacroConvert<0x04, 0x18,
+  "tx.macro.convert.fp8.s4 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_FP8_U4 : RVTMacroConvert<0x04, 0x19,
+  "tx.macro.convert.fp8.u4 $rd, $rs1, $group">;
+def RVT_MACRO_CONVERT_FP32_FP8 : RVTMacroConvert<0x00, 0x04,
+  "tx.macro.convert.fp32.fp8 $rd, $rs1, $group">;
 def RVT_MACRO_CONVERT_FP32_FP16 : RVTMacroConvert<0x00, 0x03,
   "tx.macro.convert.fp32.fp16 $rd, $rs1, $group">;
 
@@ -1423,21 +1346,33 @@ def RVT_MACRO_REDUCE_MIN_FP32 : RVTMacroReduce3P<0b000101, 0x00,
   "tx.macro.reduce.min.fp32 $rd, $rs1, $rs2, $group, $index">;
 def RVT_MACRO_REDUCE_ADD_FP32 : RVTMacroReduce<0, 0b000000, 0x00,
   "tx.macro.reduce.add.fp32 $rd, $rs1, $group">;
-def RVT_MACRO_REDUCE_MAX_S32 : RVTMacroReduce<1, 0b000100, 0x20,
-  "tx.macro.reduce.max.s32 $rd, $rs1, $group">;
-def RVT_MACRO_REDUCE_MIN_S32 : RVTMacroReduce<1, 0b000101, 0x20,
-  "tx.macro.reduce.min.s32 $rd, $rs1, $group">;
-def RVT_MACRO_SFU_LOG2_FP32  : RVTMacroSFU<0x00, "tx.macro.sfu.log2.fp32 $rd, $rs1, $group">;
-def RVT_MACRO_SFU_EXP2_FP32  : RVTMacroSFU<0x01, "tx.macro.sfu.exp2.fp32 $rd, $rs1, $group">;
-def RVT_MACRO_SFU_SIN_FP32   : RVTMacroSFU<0x02, "tx.macro.sfu.sin.fp32 $rd, $rs1, $group">;
-def RVT_MACRO_SFU_COS_FP32   : RVTMacroSFU<0x03, "tx.macro.sfu.cos.fp32 $rd, $rs1, $group">;
-def RVT_MACRO_SFU_RSQRT_FP32 : RVTMacroSFU<0x04, "tx.macro.sfu.rsqrt.fp32 $rd, $rs1, $group">;
-def RVT_MACRO_SFU_RECIP_FP32 : RVTMacroSFU<0x05, "tx.macro.sfu.recip.fp32 $rd, $rs1, $group">;
+def RVT_MACRO_REDUCE_MAX_S32 : RVTMacroReduce3P<0b000100, 0x10,
+  "tx.macro.reduce.max.s32 $rd, $rs1, $rs2, $group, $index">;
+def RVT_MACRO_REDUCE_MIN_S32 : RVTMacroReduce3P<0b000101, 0x10,
+  "tx.macro.reduce.min.s32 $rd, $rs1, $rs2, $group, $index">;
+def RVT_MACRO_SFU_LOG2_FP32  : RVTMacroSFU<0x00, "tx.macro.sfu.log2 $rd, $rs1, $group">;
+def RVT_MACRO_SFU_EXP2_FP32  : RVTMacroSFU<0x01, "tx.macro.sfu.exp2 $rd, $rs1, $group">;
+def RVT_MACRO_SFU_SIN_FP32   : RVTMacroSFU<0x02, "tx.macro.sfu.sin $rd, $rs1, $group">;
+def RVT_MACRO_SFU_COS_FP32   : RVTMacroSFU<0x03, "tx.macro.sfu.cos $rd, $rs1, $group">;
+def RVT_MACRO_SFU_RSQRT_FP32 : RVTMacroSFU<0x04, "tx.macro.sfu.rsqrt $rd, $rs1, $group">;
+def RVT_MACRO_SFU_RECIP_FP32 : RVTMacroSFU<0x05, "tx.macro.sfu.recip $rd, $rs1, $group">;
 }
 
 // Alias-only mnemonics that intentionally share encoding with canonical forms.
 // Keep parser compatibility without introducing duplicate decode table entries.
 let Predicates = [HasTXMacroOrZTXMacro] in {
+def : InstAlias<"tx.macro.sfu.log2.fp32 $rd, $rs1, $group",
+                (RVT_MACRO_SFU_LOG2_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
+def : InstAlias<"tx.macro.sfu.exp2.fp32 $rd, $rs1, $group",
+                (RVT_MACRO_SFU_EXP2_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
+def : InstAlias<"tx.macro.sfu.sin.fp32 $rd, $rs1, $group",
+                (RVT_MACRO_SFU_SIN_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
+def : InstAlias<"tx.macro.sfu.cos.fp32 $rd, $rs1, $group",
+                (RVT_MACRO_SFU_COS_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
+def : InstAlias<"tx.macro.sfu.rsqrt.fp32 $rd, $rs1, $group",
+                (RVT_MACRO_SFU_RSQRT_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
+def : InstAlias<"tx.macro.sfu.recip.fp32 $rd, $rs1, $group",
+                (RVT_MACRO_SFU_RECIP_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;
 // Historical spelling of fp32.
 def : InstAlias<"tx.macro.convert.s32.f32 $rd, $rs1, $group",
                 (RVT_MACRO_CONVERT_S32_FP32 GPR:$rd, GPR:$rs1, uimm3:$group), 0>;

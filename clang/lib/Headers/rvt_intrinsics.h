@@ -252,31 +252,6 @@ static __attribute__((always_inline)) inline void __tx_sb_get_any(long &rd) {
   rd = __builtin_riscv_tx_sb_get_any();
 }
 
-template <long VB, long SEL>
-static __attribute__((always_inline)) inline void __tx_vec_v_load(long rs2) {
-  __builtin_riscv_tx_vec_v_load(rs2, VB, SEL);
-}
-
-template <long VB, long SEL>
-static __attribute__((always_inline)) inline void __tx_vec_s_load(long rs2) {
-  __builtin_riscv_tx_vec_s_load(rs2, VB, SEL);
-}
-
-template <long VB>
-static __attribute__((always_inline)) inline void __tx_vec_const_load(long rs2) {
-  __builtin_riscv_tx_vec_const_load(rs2, VB);
-}
-
-template <long VRS2, long SEL>
-static __attribute__((always_inline)) inline void __tx_vec_v_store(long rs2) {
-  __builtin_riscv_tx_vec_v_store(rs2, VRS2, SEL);
-}
-
-template <long VRS2, long SEL>
-static __attribute__((always_inline)) inline void __tx_vec_s_store(long rs2) {
-  __builtin_riscv_tx_vec_s_store(rs2, VRS2, SEL);
-}
-
 #define __RVT_VEC_LSU_RD_VB_SEL_WRAPPER(NAME)                                \
   template <long VB, long SEL>                                                \
   static __attribute__((always_inline)) inline void __tx_vec_lsu_##NAME(long rd) { \
@@ -535,9 +510,9 @@ __RVT_VEC_S_INT32_WRAPPER(mul)
 
 #undef __RVT_VEC_S_INT32_WRAPPER
 
-template <long SD, long S1, long S2>
+template <long SD, long DIM>
 static __attribute__((always_inline)) inline void __tx_vec_s_iter_getdim() {
-  __builtin_riscv_tx_vec_s_iter_getdim(SD, S1, S2);
+  __builtin_riscv_tx_vec_s_iter_getdim(SD, DIM);
 }
 
 template <long SD, long S1, long S2, long SEL>
@@ -576,9 +551,8 @@ static __attribute__((always_inline)) inline void __tx_vec_s_int32_bge() {
 }
 
 template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_mat_setptr(long rd, long rs1, long rs2) {
-  // Keep argument order aligned with npu-kernels: (rd, rs1, rs2, group).
-  __builtin_riscv_tx_mat_setptr(rd, rs1, rs2, GROUP);
+static __attribute__((always_inline)) inline void __tx_mat_setptr(long rs1, long rs2) {
+  __builtin_riscv_tx_mat_setptr(rs1, rs2, GROUP);
 }
 
 template <long GROUP>
@@ -838,7 +812,7 @@ static __attribute__((always_inline)) inline void __tx_macro_elemwise_iv_min_u32
   __builtin_riscv_tx_macro_elemwise_iv_min_u32(rd, rs1, rs2, GROUP);
 }
 
-// Conversion suffixes are destination_source. MXFP8 uses E4M3.
+// Conversion suffixes are destination_source. FP8 and MXFP8 use E4M3.
 template <long GROUP>
 static __attribute__((always_inline)) inline void __tx_macro_convert_s32_fp32(long rd, long rs1) {
   __builtin_riscv_tx_macro_convert_s32_fp32(rd, rs1, GROUP);
@@ -885,13 +859,13 @@ static __attribute__((always_inline)) inline void __tx_macro_convert_bf16_u8(lon
 }
 
 template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_macro_convert_e4m3_s4(long rd, long rs1) {
-  __builtin_riscv_tx_macro_convert_e4m3_s4(rd, rs1, GROUP);
+static __attribute__((always_inline)) inline void __tx_macro_convert_fp8_s4(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_fp8_s4(rd, rs1, GROUP);
 }
 
 template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_macro_convert_e4m3_u4(long rd, long rs1) {
-  __builtin_riscv_tx_macro_convert_e4m3_u4(rd, rs1, GROUP);
+static __attribute__((always_inline)) inline void __tx_macro_convert_fp8_u4(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_fp8_u4(rd, rs1, GROUP);
 }
 
 template <long GROUP>
@@ -910,8 +884,8 @@ static __attribute__((always_inline)) inline void __tx_macro_convert_fp32_s32(lo
 }
 
 template <long GROUP>
-static __attribute__((always_inline)) inline void __tx_macro_convert_fp32_e4m3(long rd, long rs1) {
-  __builtin_riscv_tx_macro_convert_fp32_e4m3(rd, rs1, GROUP);
+static __attribute__((always_inline)) inline void __tx_macro_convert_fp32_fp8(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_fp32_fp8(rd, rs1, GROUP);
 }
 
 template <long GROUP>
@@ -980,13 +954,48 @@ static __attribute__((always_inline)) inline void __tx_macro_reduce_add_fp32(lon
 }
 
 template <long GROUP, long INDEX>
-static __attribute__((always_inline)) inline void __tx_macro_reduce_max_s32(long rd, long rs1) {
-  __builtin_riscv_tx_macro_reduce_max_s32(rd, rs1, GROUP, INDEX);
+static __attribute__((always_inline)) inline void __tx_macro_reduce_max_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_reduce_max_s32(rd, rs1, rs2, GROUP, INDEX);
 }
 
 template <long GROUP, long INDEX>
-static __attribute__((always_inline)) inline void __tx_macro_reduce_min_s32(long rd, long rs1) {
-  __builtin_riscv_tx_macro_reduce_min_s32(rd, rs1, GROUP, INDEX);
+static __attribute__((always_inline)) inline void __tx_macro_reduce_min_s32(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_reduce_min_s32(rd, rs1, rs2, GROUP, INDEX);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_shuffle_compress(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_shuffle_compress(rd, rs1, rs2, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_sfu_log2(long rd, long rs1) {
+  __builtin_riscv_tx_macro_sfu_log2(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_sfu_exp2(long rd, long rs1) {
+  __builtin_riscv_tx_macro_sfu_exp2(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_sfu_sin(long rd, long rs1) {
+  __builtin_riscv_tx_macro_sfu_sin(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_sfu_cos(long rd, long rs1) {
+  __builtin_riscv_tx_macro_sfu_cos(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_sfu_rsqrt(long rd, long rs1) {
+  __builtin_riscv_tx_macro_sfu_rsqrt(rd, rs1, GROUP);
+}
+
+template <long GROUP>
+static __attribute__((always_inline)) inline void __tx_macro_sfu_recip(long rd, long rs1) {
+  __builtin_riscv_tx_macro_sfu_recip(rd, rs1, GROUP);
 }
 
 #endif // defined(__cplusplus)

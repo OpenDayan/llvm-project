@@ -34,7 +34,7 @@ tx.vec.s.int32.srl 2, 1, 3
 tx.vec.s.int32.add 2, 1, 3
 tx.vec.s.int32.sub 2, 1, 3
 tx.vec.s.int32.mul 2, 1, 3
-tx.vec.s.iter.getdim 2, 1, 3
+tx.vec.s.iter.getdim 2, 1
 tx.vec.s.iter.gets 2, 1, 3, 1
 tx.vec.s.iter.getv 2, 1, 3, 1
 tx.vec.s.bitwise 2, 1, 3, 3
@@ -118,7 +118,7 @@ tx.vec.shuffle.compress.dyn 1, 3, 2
 # CHECK: tx.vec.s.int32.add 2, 1, 3
 # CHECK: tx.vec.s.int32.sub 2, 1, 3
 # CHECK: tx.vec.s.int32.mul 2, 1, 3
-# CHECK: tx.vec.s.iter.getdim 2, 1, 3
+# CHECK: tx.vec.s.iter.getdim 2, 1
 # CHECK: tx.vec.s.iter.gets 2, 1, 3, 1
 # CHECK: tx.vec.s.iter.getv 2, 1, 3, 1
 # CHECK: tx.vec.s.bitwise 2, 1, 3, 3

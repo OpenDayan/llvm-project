@@ -47,17 +47,17 @@ tx.macro.convert.bf16.s8 a0, a1, 7
 # ASM: encoding: [0x3f,0xf5,0x05,0x02,0x15,0x02,0x00,0x00]
 tx.macro.convert.bf16.u8 a0, a1, 7
 
-# COMMON: tx.macro.convert.e4m3.s4 a0, a1, {{(7|0x7)}}
+# COMMON: tx.macro.convert.fp8.s4 a0, a1, {{(7|0x7)}}
 # ASM: encoding: [0x3f,0xf5,0x05,0x02,0x18,0x04,0x00,0x00]
-tx.macro.convert.e4m3.s4 a0, a1, 7
+tx.macro.convert.fp8.s4 a0, a1, 7
 
-# COMMON: tx.macro.convert.e4m3.u4 a0, a1, {{(7|0x7)}}
+# COMMON: tx.macro.convert.fp8.u4 a0, a1, {{(7|0x7)}}
 # ASM: encoding: [0x3f,0xf5,0x05,0x02,0x19,0x04,0x00,0x00]
-tx.macro.convert.e4m3.u4 a0, a1, 7
+tx.macro.convert.fp8.u4 a0, a1, 7
 
-# COMMON: tx.macro.convert.fp32.e4m3 a0, a1, {{(7|0x7)}}
+# COMMON: tx.macro.convert.fp32.fp8 a0, a1, {{(7|0x7)}}
 # ASM: encoding: [0x3f,0xf5,0x05,0x02,0x04,0x00,0x00,0x00]
-tx.macro.convert.fp32.e4m3 a0, a1, 7
+tx.macro.convert.fp32.fp8 a0, a1, 7
 
 # COMMON: tx.macro.convert.fp32.fp16 a0, a1, {{(7|0x7)}}
 # ASM: encoding: [0x3f,0xf5,0x05,0x02,0x03,0x00,0x00,0x00]

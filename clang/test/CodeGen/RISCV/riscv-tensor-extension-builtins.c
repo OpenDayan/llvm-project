@@ -54,8 +54,8 @@ void test_mat_tcsr_write_builtin(long v) {
   __builtin_riscv_tx_mat_tcsr_write(v, 2);
 }
 
-void test_mat_setptr_builtin(long rd, long rs1, long rs2) {
-  __builtin_riscv_tx_mat_setptr(rd, rs1, rs2, 2);
+void test_mat_setptr_builtin(long rs1, long rs2) {
+  __builtin_riscv_tx_mat_setptr(rs1, rs2, 2);
 }
 
 void test_mat_mm_builtin(long rd, long rs1, long rs2) {
@@ -118,8 +118,8 @@ void test_macro_convert_fp32_s32_builtin(long rd, long rs1) {
   __builtin_riscv_tx_macro_convert_fp32_s32(rd, rs1, 2);
 }
 
-void test_macro_convert_fp32_e4m3_builtin(long rd, long rs1) {
-  __builtin_riscv_tx_macro_convert_fp32_e4m3(rd, rs1, 2);
+void test_macro_convert_fp32_fp8_builtin(long rd, long rs1) {
+  __builtin_riscv_tx_macro_convert_fp32_fp8(rd, rs1, 2);
 }
 
 void test_macro_convert_fp32_fp16_builtin(long rd, long rs1) {
@@ -166,12 +166,12 @@ void test_macro_reduce_add_fp32_builtin(long rd, long rs1) {
   __builtin_riscv_tx_macro_reduce_add_fp32(rd, rs1, 2);
 }
 
-void test_macro_reduce_max_s32_builtin(long rd, long rs1) {
-  __builtin_riscv_tx_macro_reduce_max_s32(rd, rs1, 2, 1);
+void test_macro_reduce_max_s32_builtin(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_reduce_max_s32(rd, rs1, rs2, 2, 1);
 }
 
-void test_macro_reduce_min_s32_builtin(long rd, long rs1) {
-  __builtin_riscv_tx_macro_reduce_min_s32(rd, rs1, 2, 1);
+void test_macro_reduce_min_s32_builtin(long rd, long rs1, long rs2) {
+  __builtin_riscv_tx_macro_reduce_min_s32(rd, rs1, rs2, 2, 1);
 }
 
 long test_vec_tcsr_read_builtin(void) {
@@ -208,26 +208,6 @@ long test_lsu_sb_bar_builtin(void) {
 
 long test_sb_get_any_builtin(void) {
   return __builtin_riscv_tx_sb_get_any();
-}
-
-void test_vec_v_load_builtin(long rs2) {
-  __builtin_riscv_tx_vec_v_load(rs2, 1, 2);
-}
-
-void test_vec_s_load_builtin(long rs2) {
-  __builtin_riscv_tx_vec_s_load(rs2, 1, 2);
-}
-
-void test_vec_const_load_builtin(long rs2) {
-  __builtin_riscv_tx_vec_const_load(rs2, 1);
-}
-
-void test_vec_v_store_builtin(long rs2) {
-  __builtin_riscv_tx_vec_v_store(rs2, 3, 2);
-}
-
-void test_vec_s_store_builtin(long rs2) {
-  __builtin_riscv_tx_vec_s_store(rs2, 3, 2);
 }
 
 void test_vec_vv_int32_bitwise_builtin(void) {
@@ -289,7 +269,7 @@ void test_vec_s_builtins(void) {
   __builtin_riscv_tx_vec_s_int32_add(2, 1, 3);
   __builtin_riscv_tx_vec_s_int32_sub(2, 1, 3);
   __builtin_riscv_tx_vec_s_int32_mul(2, 1, 3);
-  __builtin_riscv_tx_vec_s_iter_getdim(2, 1, 3);
+  __builtin_riscv_tx_vec_s_iter_getdim(2, 1);
   __builtin_riscv_tx_vec_s_iter_gets(2, 1, 3, 1);
   __builtin_riscv_tx_vec_s_iter_getv(2, 1, 3, 1);
   __builtin_riscv_tx_vec_s_bitwise(2, 1, 3, 3);
@@ -391,7 +371,7 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK: call void asm sideeffect "tx.mat.tcsr.write $0, $1", "r,i"(i64 %{{.*}}, i32 2)
 //
 // CHECK-LABEL: @test_mat_setptr_builtin
-// CHECK: call void asm sideeffect "tx.mat.setptr $0, $1, $2, $3", "r,r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2)
+// CHECK: call void asm sideeffect "tx.mat.setptr $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
 // CHECK-LABEL: @test_mat_mm_builtin
 // CHECK: call void asm sideeffect "tx.mat.mm $0, $1, $2, $3", "r,r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2)
@@ -449,8 +429,8 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK-LABEL: @test_macro_convert_fp32_s32_builtin
 // CHECK: call void asm sideeffect "tx.macro.convert.fp32.s32 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
-// CHECK-LABEL: @test_macro_convert_fp32_e4m3_builtin
-// CHECK: call void asm sideeffect "tx.macro.convert.fp32.e4m3 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
+// CHECK-LABEL: @test_macro_convert_fp32_fp8_builtin
+// CHECK: call void asm sideeffect "tx.macro.convert.fp32.fp8 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
 // CHECK-LABEL: @test_macro_convert_fp32_fp16_builtin
 // CHECK: call void asm sideeffect "tx.macro.convert.fp32.fp16 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
@@ -486,10 +466,10 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK: call void asm sideeffect "tx.macro.reduce.add.fp32 $0, $1, $2", "r,r,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2)
 //
 // CHECK-LABEL: @test_macro_reduce_max_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.reduce.max.s32 $0, $1, $2, $3", "r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
+// CHECK: call void asm sideeffect "tx.macro.reduce.max.s32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
 // CHECK-LABEL: @test_macro_reduce_min_s32_builtin
-// CHECK: call void asm sideeffect "tx.macro.reduce.min.s32 $0, $1, $2, $3", "r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
+// CHECK: call void asm sideeffect "tx.macro.reduce.min.s32 $0, $1, $2, $3, $4", "r,r,r,i,i"(i64 %{{.*}}, i64 %{{.*}}, i64 %{{.*}}, i32 2, i32 1)
 //
 // CHECK-LABEL: @test_vec_tcsr_read_builtin
 // CHECK: call i64 asm sideeffect "tx.vec.tcsr.read $0, $1", "=r,i"(i32 4)
@@ -518,20 +498,10 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK-LABEL: @test_sb_get_any_builtin
 // CHECK: call i64 asm sideeffect "tx.sb.get.any $0", "=r"()
 //
-// CHECK-LABEL: @test_vec_v_load_builtin
-// CHECK: call void asm sideeffect "tx.vec.v.load $0, $1, $2", "r,i,i"(i64 %{{.*}}, i32 1, i32 2)
 //
-// CHECK-LABEL: @test_vec_s_load_builtin
-// CHECK: call void asm sideeffect "tx.vec.s.load $0, $1, $2", "r,i,i"(i64 %{{.*}}, i32 1, i32 2)
 //
-// CHECK-LABEL: @test_vec_const_load_builtin
-// CHECK: call void asm sideeffect "tx.vec.const.load $0, $1", "r,i"(i64 %{{.*}}, i32 1)
 //
-// CHECK-LABEL: @test_vec_v_store_builtin
-// CHECK: call void asm sideeffect "tx.vec.v.store $0, $1, $2", "r,i,i"(i64 %{{.*}}, i32 3, i32 2)
 //
-// CHECK-LABEL: @test_vec_s_store_builtin
-// CHECK: call void asm sideeffect "tx.vec.s.store $0, $1, $2", "r,i,i"(i64 %{{.*}}, i32 3, i32 2)
 //
 
 // CHECK-LABEL: @test_vec_vv_int32_bitwise_builtin
@@ -587,7 +557,7 @@ void test_vec_sparse_dyn_shuffle_builtins(long rd) {
 // CHECK: call void asm sideeffect "tx.vec.s.int32.add $0, $1, $2", "i,i,i"(i32 2, i32 1, i32 3)
 // CHECK: call void asm sideeffect "tx.vec.s.int32.sub $0, $1, $2", "i,i,i"(i32 2, i32 1, i32 3)
 // CHECK: call void asm sideeffect "tx.vec.s.int32.mul $0, $1, $2", "i,i,i"(i32 2, i32 1, i32 3)
-// CHECK: call void asm sideeffect "tx.vec.s.iter.getdim $0, $1, $2", "i,i,i"(i32 2, i32 1, i32 3)
+// CHECK: call void asm sideeffect "tx.vec.s.iter.getdim $0, $1", "i,i"(i32 2, i32 1)
 // CHECK: call void asm sideeffect "tx.vec.s.iter.gets $0, $1, $2, $3", "i,i,i,i"(i32 2, i32 1, i32 3, i32 1)
 // CHECK: call void asm sideeffect "tx.vec.s.iter.getv $0, $1, $2, $3", "i,i,i,i"(i32 2, i32 1, i32 3, i32 1)
 // CHECK: call void asm sideeffect "tx.vec.s.bitwise $0, $1, $2, $3", "i,i,i,i"(i32 2, i32 1, i32 3, i32 3)
