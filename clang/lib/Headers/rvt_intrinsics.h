@@ -1,3 +1,4 @@
+// NOLINTNEXTLINE(llvm-header-guard): guard style follows clang/lib/Headers.
 #ifndef __RVT_INTRINSICS_H__
 #define __RVT_INTRINSICS_H__
 

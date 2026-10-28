@@ -33,20 +33,6 @@ page for information on building and running LLVM.
 For information on how to contribute to the LLVM project, please take a look at
 the [Contributing to LLVM](https://llvm.org/docs/Contributing.html) guide.
 
-In Windows WSL Ubuntu 20.04， the build command is as the following:
-
-cd llvm-project && mkdir llvm-build
-
-cmake -S llvm -B llvm-build \
-  -G "Unix Makefiles" \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DLLVM_TARGETS_TO_BUILD="RISCV" \
-  -DLLVM_ENABLE_PROJECTS="clang" \
-  -DLLVM_INCLUDE_TESTS=OFF \
-  -DLLVM_INCLUDE_EXAMPLES=OFF
-
-make -C llvm-build -j1 clang llvm-mc llc
-
 ## Getting in touch
 
 Join the [LLVM Discourse forums](https://discourse.llvm.org/), [Discord
