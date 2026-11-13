@@ -154,7 +154,7 @@ let Features = "zihintpause", Attributes = [NoThrow] in
 def pause : RISCVBuiltin<"void()">;
 
 //===----------------------------------------------------------------------===//
-// RVT LSU extension.
+// Dayan LSU extension.
 //===----------------------------------------------------------------------===//
 let Features = "txlsu|ztxlsu", Attributes = [NoThrow] in {
 def tx_lsu_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
@@ -178,7 +178,7 @@ def tx_lsu_dma_d2d_sg : RISCVBuiltin<"void(long int, long int, _Constant unsigne
 } // Features = "txlsu|ztxlsu", Attributes = [NoThrow]
 
 //===----------------------------------------------------------------------===//
-// RVT MAT extension.
+// Dayan MAT extension.
 //===----------------------------------------------------------------------===//
 let Features = "txmat", Attributes = [NoThrow] in {
 def tx_mat_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
@@ -202,7 +202,7 @@ let Features = "txbase", Attributes = [NoThrow, Const] in {
 
 
 //===----------------------------------------------------------------------===//
-// RVT BASE extension.
+// Dayan BASE extension.
 //===----------------------------------------------------------------------===//
 let Features = "txbase", Attributes = [NoThrow] in {
 def tx_base_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int, _Constant unsigned int)">;
@@ -219,7 +219,7 @@ def tx_sb_get_any : RISCVBuiltin<"long int()">;
 } // Features = "txbase", Attributes = [NoThrow]
 
 //===----------------------------------------------------------------------===//
-// RVT VEC extension.
+// Dayan VEC extension.
 //===----------------------------------------------------------------------===//
 let Features = "txvec", Attributes = [NoThrow] in {
 def tx_vec_tcsr_read : RISCVBuiltin<"long int(_Constant unsigned int)">;
@@ -316,7 +316,7 @@ def tx_vec_s_int32_bge : RISCVBuiltin<"void(_Constant int, _Constant unsigned in
 } // Features = "txvec", Attributes = [NoThrow]
 
 //===----------------------------------------------------------------------===//
-// RVT MACRO extension.
+// Dayan MACRO extension.
 //===----------------------------------------------------------------------===//
 let Features = "txmacro", Attributes = [NoThrow] in {
 def tx_macro_shuffle_compress : RISCVBuiltin<"void(long int, long int, long int, _Constant unsigned int)">;

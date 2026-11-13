@@ -1788,7 +1788,7 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     return Builder.CreateCall(Fn, {});
   }
 
-  // RVT
+  // Dayan
   case RISCV::BI__builtin_riscv_tx_lsu_tcsr_read: {
     llvm::FunctionType *FTy =
         llvm::FunctionType::get(ResultType, {Ops[0]->getType()}, false);

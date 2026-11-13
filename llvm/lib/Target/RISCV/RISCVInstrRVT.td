@@ -1,5 +1,5 @@
 //===----------------------------------------------------------------------===//
-// RVT instruction definitions for direct in-repo implementation.
+// Dayan instruction definitions for direct in-repo implementation.
 // Compile-first baseline with RVT 32/64-bit encodings.
 //===----------------------------------------------------------------------===//
 
@@ -17,43 +17,43 @@ def rvt_simm8 : RISCVSImmLeafOp<8>;
 // Use RISCVExtension (not plain SubtargetFeature) so Clang's RISC-V frontend
 // can validate and forward +tx* / +ztx* via RISCVISAInfo::parseFeatures.
 // We preserve existing feature spellings and Subtarget field names.
-def FeatureVendorTXBase  : RISCVExtension<1, 0, "RVT base instructions", [], "HasTXBase">;
-def FeatureVendorTXLSU   : RISCVExtension<1, 0, "RVT LSU instructions",  [], "HasTXLSU">;
-def FeatureVendorTXMat   : RISCVExtension<1, 0, "RVT MAT instructions",  [], "HasTXMat">;
-def FeatureVendorTXVec   : RISCVExtension<1, 0, "RVT VEC instructions",  [], "HasTXVec">;
-def FeatureVendorTXMacro : RISCVExtension<1, 0, "RVT MACRO instructions",[], "HasTXMacro">;
+def FeatureVendorTXBase  : RISCVExtension<1, 0, "Dayan base instructions", [], "HasTXBase">;
+def FeatureVendorTXLSU   : RISCVExtension<1, 0, "Dayan LSU instructions",  [], "HasTXLSU">;
+def FeatureVendorTXMat   : RISCVExtension<1, 0, "Dayan MAT instructions",  [], "HasTXMat">;
+def FeatureVendorTXVec   : RISCVExtension<1, 0, "Dayan VEC instructions",  [], "HasTXVec">;
+def FeatureVendorTXMacro : RISCVExtension<1, 0, "Dayan MACRO instructions",[], "HasTXMacro">;
 
 // Spec-aligned aliases. Keep both tx* and ztx* accepted in -mattr/-target-feature.
-def FeatureVendorZTXBase  : RISCVExtension<1, 0, "RVT base instructions (spec alias)", [], "HasZTXBase">;
-def FeatureVendorZTXLSU   : RISCVExtension<1, 0, "RVT LSU instructions (spec alias)",  [], "HasZTXLSU">;
-def FeatureVendorZTXMat   : RISCVExtension<1, 0, "RVT MAT instructions (spec alias)",  [], "HasZTXMat">;
-def FeatureVendorZTXVec   : RISCVExtension<1, 0, "RVT VEC instructions (spec alias)",  [], "HasZTXVec">;
-def FeatureVendorZTXMacro : RISCVExtension<1, 0, "RVT MACRO instructions (spec alias)",[], "HasZTXMacro">;
+def FeatureVendorZTXBase  : RISCVExtension<1, 0, "Dayan base instructions (spec alias)", [], "HasZTXBase">;
+def FeatureVendorZTXLSU   : RISCVExtension<1, 0, "Dayan LSU instructions (spec alias)",  [], "HasZTXLSU">;
+def FeatureVendorZTXMat   : RISCVExtension<1, 0, "Dayan MAT instructions (spec alias)",  [], "HasZTXMat">;
+def FeatureVendorZTXVec   : RISCVExtension<1, 0, "Dayan VEC instructions (spec alias)",  [], "HasZTXVec">;
+def FeatureVendorZTXMacro : RISCVExtension<1, 0, "Dayan MACRO instructions (spec alias)",[], "HasZTXMacro">;
 
 def HasTXBaseOrZTXBase
     : Predicate<"Subtarget->hasTXBase() || Subtarget->hasZTXBase()">,
       AssemblerPredicate<(any_of FeatureVendorTXBase, FeatureVendorZTXBase),
-                         "'txbase' or 'ztxbase' (RVT base instructions)">;
+                         "'txbase' or 'ztxbase' (Dayan base instructions)">;
 
 def HasTXLSUOrZTXLSU
     : Predicate<"Subtarget->hasTXLSU() || Subtarget->hasZTXLSU()">,
       AssemblerPredicate<(any_of FeatureVendorTXLSU, FeatureVendorZTXLSU),
-                         "'txlsu' or 'ztxlsu' (RVT LSU instructions)">;
+                         "'txlsu' or 'ztxlsu' (Dayan LSU instructions)">;
 
 def HasTXMatOrZTXMat
     : Predicate<"Subtarget->hasTXMat() || Subtarget->hasZTXMat()">,
       AssemblerPredicate<(any_of FeatureVendorTXMat, FeatureVendorZTXMat),
-                         "'txmat' or 'ztxmat' (RVT MAT instructions)">;
+                         "'txmat' or 'ztxmat' (Dayan MAT instructions)">;
 
 def HasTXVecOrZTXVec
     : Predicate<"Subtarget->hasTXVec() || Subtarget->hasZTXVec()">,
       AssemblerPredicate<(any_of FeatureVendorTXVec, FeatureVendorZTXVec),
-                         "'txvec' or 'ztxvec' (RVT VEC instructions)">;
+                         "'txvec' or 'ztxvec' (Dayan VEC instructions)">;
 
 def HasTXMacroOrZTXMacro
     : Predicate<"Subtarget->hasTXMacro() || Subtarget->hasZTXMacro()">,
       AssemblerPredicate<(any_of FeatureVendorTXMacro, FeatureVendorZTXMacro),
-                         "'txmacro' or 'ztxmacro' (RVT MACRO instructions)">;
+                         "'txmacro' or 'ztxmacro' (Dayan MACRO instructions)">;
 
 // -------------------------------
 // 32-bit families (base/lsu/mat)
